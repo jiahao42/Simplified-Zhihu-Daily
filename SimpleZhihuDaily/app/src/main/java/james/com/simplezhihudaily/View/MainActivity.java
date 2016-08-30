@@ -1,5 +1,6 @@
 package james.com.simplezhihudaily.View;
 
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -59,6 +60,11 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 NewsInfo newsInfo = newsList.get(position);
                 Toast.makeText(MainActivity.this, newsInfo.getTitle(), Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(MainActivity.this,ArticleActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putInt("id",newsInfo.getId());
+                intent.putExtra("id",bundle);
+                startActivity(intent);
             }
         });
         get_news_url();

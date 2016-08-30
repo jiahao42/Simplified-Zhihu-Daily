@@ -36,7 +36,6 @@ public class NewsAdapter extends ArrayAdapter<NewsInfo> {
         }
         viewHolder.title.setText(newsInfo.getTitle());
         viewHolder.imageView.setImageBitmap(newsInfo.getBitmap());
-        //viewHolder.imageView.setImageBitmap(newsInfo.getBitmap());
         return view;
     }
     private class ViewHolder
