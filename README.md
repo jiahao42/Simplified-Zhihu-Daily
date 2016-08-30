@@ -1,0 +1,2 @@
+# SimpleZhihuDaily
+Simplified Zhihu Daily
