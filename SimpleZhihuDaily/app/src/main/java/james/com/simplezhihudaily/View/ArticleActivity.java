@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 import com.android.volley.RequestQueue;
@@ -18,9 +19,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
+import james.com.simplezhihudaily.Model.DeviceInfo;
 import james.com.simplezhihudaily.Model.Symbol;
 import james.com.simplezhihudaily.R;
+import james.com.simplezhihudaily.Util.Util;
 
 
 public class ArticleActivity extends Activity {
@@ -47,10 +52,16 @@ public class ArticleActivity extends Activity {
             @Override
             public void handleMessage(Message message){
                 if (message.what == Symbol.RECEIVE_SUCCESS){
-                    document = Jsoup.parse(htmlString,"UTF-8");
-                    body = document.body().toString();
-                    article.loadData(body,"text/html; charset=UTF-8", null);
-                    Log.d("body",body);
+                    document = Jsoup.parse(htmlString);
+                    Elements imgs = document.getElementsByTag("img");
+                    for (Element img : imgs){
+                        if (img.attr("class").equals("content-image")){
+                            Log.d("img","zoomed");
+                            img.attr("width","100%").attr("height","auto");
+                        }
+                        Log.d("img",img.attr("class"));
+                    }
+                    article.loadDataWithBaseURL("file:///android_asset/.",document.toString(),"text/html; charset=UTF-8", null,null);
                 }
             }
         };
@@ -91,5 +102,8 @@ public class ArticleActivity extends Activity {
         intent = getIntent();
         Bundle bundle = intent.getBundleExtra("id");
         id = bundle.getInt("id");
+        article.getSettings().setAppCacheEnabled(true);// 设置启动缓存
+        article.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
+        article.getSettings().setLayoutAlgorithm(WebSettings.LayoutAlgorithm.SINGLE_COLUMN);//适应屏幕，内容将自动缩
     }
 }

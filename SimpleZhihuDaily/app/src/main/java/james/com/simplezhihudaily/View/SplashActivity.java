@@ -20,8 +20,10 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import james.com.simplezhihudaily.Model.DeviceInfo;
 import james.com.simplezhihudaily.Model.Symbol;
 import james.com.simplezhihudaily.R;
+import james.com.simplezhihudaily.Util.Util;
 
 
 public class SplashActivity extends Activity {
@@ -99,7 +101,7 @@ public class SplashActivity extends Activity {
                     public void onResponse(Bitmap response) {
                         splash_img.setImageBitmap(response);
                     }
-                }, 0, 0, ImageView.ScaleType.FIT_XY,Bitmap.Config.RGB_565, new Response.ErrorListener() {
+                }, 0, 0, ImageView.ScaleType.CENTER_CROP,Bitmap.Config.RGB_565, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Log.d("Fetching img","Failed");
