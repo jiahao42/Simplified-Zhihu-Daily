@@ -63,17 +63,67 @@ public class ZhihuDailyDB {
         values.put("content",content);
         db.update(ZhihuDailyDBhelper.TABLE_NAME,values,"id = ?",new String[] {id});
     }
-    public  boolean isInserted(String date){
-        Cursor cursor = db.query(ZhihuDailyDBhelper.TABLE_NAME,null,"date = ?",new String[]{date},null,null,null,null);
-        cursor.moveToFirst();
-        if (cursor.moveToNext()){
-            Log.d("isInserted","moveToNext_success");
+    /**
+     * query the id and if it has content,return ture
+     * @param id    id of article
+     * @return  true or false
+     */
+    public boolean hasContent(String id){
+        Cursor cursor = db.query(ZhihuDailyDBhelper.TABLE_NAME,null,"id = ?",new String[]{id},null,null,null);
+        if (cursor!= null && cursor.moveToFirst()){
+            while (!cursor.isAfterLast()) {
+                if (cursor.getString(cursor.getColumnIndex("content")) != null){
+                    cursor.close();
+                    return true;
+                }
+                cursor.moveToNext();
+            }
             cursor.close();
-            return true;
-        }else {
-            Log.d("isInserted","moveToNext_failed");
+        }
+        return false;
+        /*
+        cursor.moveToFirst();
+        if (cursor.getString(cursor.getColumnIndex("content")) == null){
             cursor.close();
             return false;
+        }else {
+            cursor.close();
+            return true;
+        }
+        */
+    }
+
+    /**
+     * to see how many news is already in the db
+     * @param date  date
+     * @param length    the latest number of news
+     * @return  should insert how many news
+     */
+    public int isInserted(String date,int length){
+        Cursor cursor = db.query(ZhihuDailyDBhelper.TABLE_NAME,null,"date = ?",new String[]{date},null,null,null,null);
+        cursor.moveToFirst();
+        int count = cursor.getCount();
+        cursor.close();
+        Log.d("how many in the db",String.valueOf(count));
+        return length - count;//直接返回差距个数 最少为0 最多不限
+    }
+
+    /**
+     * get article from db through id
+     * @param id    id of the article
+     * @return
+     */
+    public String getArticle(String id){
+        Cursor cursor = db.query(ZhihuDailyDBhelper.TABLE_NAME,null,"id = ?",new String[]{id},null,null,null,null);
+        if (cursor.getCount() == 0){
+            cursor.close();
+            return null;
+        }else {
+            Log.d("getArticle",String.valueOf(cursor.getColumnIndex("content")));
+            cursor.moveToFirst();
+            String htmlString = cursor.getString(cursor.getColumnIndex("content"));
+            cursor.close();
+            return htmlString;
         }
     }
     /**

@@ -27,6 +27,7 @@ import james.com.simplezhihudaily.Model.Symbol;
 import james.com.simplezhihudaily.R;
 import james.com.simplezhihudaily.Util.Util;
 import james.com.simplezhihudaily.db.ZhihuDailyDB;
+import james.com.simplezhihudaily.db.ZhihuDailyDBhelper;
 
 
 public class ArticleActivity extends Activity {
@@ -38,7 +39,6 @@ public class ArticleActivity extends Activity {
     private String cssUrl;
     private String htmlString;
     private Document document;
-    private String body;
     private ArticleActivity articleActivity;
     private ZhihuDailyDB zhihuDailyDB;
 
@@ -54,49 +54,55 @@ public class ArticleActivity extends Activity {
             @Override
             public void handleMessage(Message message){
                 if (message.what == Symbol.RECEIVE_SUCCESS){
-                    document = Jsoup.parse(htmlString);
-                    Elements imgs = document.getElementsByTag("img");
-                    for (Element img : imgs){
-                        if (img.attr("class").equals("content-image")){
-                            Log.d("img","zoomed");
-                            img.attr("width","100%").attr("height","auto");
-                        }
-                        Log.d("img",img.attr("class"));
-                    }
-                    article.loadDataWithBaseURL("file:///android_asset/.",document.toString(),"text/html; charset=UTF-8", null,null);
+                    zoomPircture();
+                }else if (message.what == Symbol.GET_ARTICLE_FROM_DB){
+                    Log.d("db","Got article from db");
+                    zoomPircture();
                 }
             }
         };
         new Thread(new Runnable() {
             @Override
             public void run() {
-                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(url + id, null, new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try
-                        {
-                            htmlString = response.getString("body");
+                htmlString = zhihuDailyDB.getArticle(id);
+                if (htmlString != null)
+                {
+                    Message message = new Message();
+                    message.what = Symbol.GET_ARTICLE_FROM_DB;
+                    handler.sendMessage(message);
+                } else
+                {
+                    JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(url + id, null, new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            try
+                            {
+                                htmlString = response.getString("body");
                             /*
                             此处也要判断 若id对应的content不为空 则不用插入
                              */
-                            zhihuDailyDB.insertContent(id,htmlString);
-                            cssUrl = response.getString("css");
-                            Message message = new Message();
-                            message.what = Symbol.RECEIVE_SUCCESS;
-                            handler.sendMessage(message);
-                        } catch (JSONException e)
-                        {
-                            e.printStackTrace();
+                                if (!zhihuDailyDB.hasContent(id))
+                                {
+                                    zhihuDailyDB.insertContent(id, htmlString);
+                                }
+                                cssUrl = response.getString("css");
+                                Message message = new Message();
+                                message.what = Symbol.RECEIVE_SUCCESS;
+                                handler.sendMessage(message);
+                            } catch (JSONException e)
+                            {
+                                e.printStackTrace();
+                            }
                         }
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
 
-                    }
-                });
-                mQueue.add(jsonObjectRequest);
-                mQueue.start();
+                        }
+                    });
+                    mQueue.add(jsonObjectRequest);
+                    mQueue.start();
+                }
             }
 
         }).start();
@@ -112,5 +118,16 @@ public class ArticleActivity extends Activity {
         article.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
         article.getSettings().setLayoutAlgorithm(WebSettings.LayoutAlgorithm.SINGLE_COLUMN);//适应屏幕，内容将自动缩
         zhihuDailyDB = ZhihuDailyDB.getInstance(articleActivity);
+    }
+    private void zoomPircture(){
+        document = Jsoup.parse(htmlString);
+        Elements imgs = document.getElementsByTag("img");
+        for (Element img : imgs){
+            if (img.attr("class").equals("content-image")){
+                Log.d("img","zoomed");
+                img.attr("width","100%").attr("height","auto");
+            }
+        }
+        article.loadDataWithBaseURL("file:///android_asset/.",document.toString(),"text/html; charset=UTF-8", null,null);
     }
 }
