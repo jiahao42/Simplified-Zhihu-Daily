@@ -35,8 +35,10 @@ import james.com.simplezhihudaily.Model.NewsAdapter;
 import james.com.simplezhihudaily.Model.NewsInfo;
 import james.com.simplezhihudaily.Model.Symbol;
 import james.com.simplezhihudaily.R;
+import james.com.simplezhihudaily.db.ZhihuDailyDB;
 
 import static android.R.attr.id;
+import static android.R.attr.inAnimation;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -46,27 +48,14 @@ public class MainActivity extends AppCompatActivity {
     private Gson gson = new Gson();
     private String[] picUrls;
     private NewsAdapter adapter;
+    private ZhihuDailyDB zhihuDailyDB;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        adapter = new NewsAdapter(MainActivity.this, R.layout.news_item, newsList);
-        ListView listView = (ListView) findViewById(R.id.title_list);
-        listView.setAdapter(adapter);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                NewsInfo newsInfo = newsList.get(position);
-                Toast.makeText(MainActivity.this, newsInfo.getTitle(), Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(MainActivity.this,ArticleActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putInt("id",newsInfo.getId());
-                intent.putExtra("id",bundle);
-                startActivity(intent);
-            }
-        });
+        initWidget();
         get_news_url();
     }
 
@@ -102,9 +91,27 @@ public class MainActivity extends AppCompatActivity {
                             Log.d("TAG", response.getJSONArray("stories").toString());
                             //获得所有日报的Json信息 注意是一个数组 将其转化成对象后 再通过bundle传递
                             NewsInfo[] newsInfo = gson.fromJson(response.getString("stories"), NewsInfo[].class);
+                            String date = gson.fromJson(response.getString("date"),String.class);
                             for (int i = 0;i < newsInfo.length; i++){
+                                newsInfo[i].setDate(date);
                                 Log.d("newsInfo",newsInfo[i].getTitle());
                             }
+                            if (!zhihuDailyDB.isInserted(date)){
+                                for (int i = 0; i < newsInfo.length; i++){
+                                     /*
+                                    将其保存到数据库
+                                    此处需要判断内容是否存在 否则会重复存储信息
+                                    这里我选择用日期来判断
+                                    但是假如用户今天没有打开过该app则无法缓存信息
+                                    所以其实最好是后台开一个服务来下载
+                                     */
+                                    zhihuDailyDB.saveBaseNews(newsInfo[i]);
+                                }
+                            }
+                            /*
+                            此处得到了所有的带有基本信息的对象集合
+                             */
+                            Log.d("date",newsInfo[0].getDate());
                             Collections.addAll(newsList, newsInfo);
                             Message message = new Message();
                             message.what = Symbol.RECEIVE_SUCCESS;
@@ -166,6 +173,24 @@ public class MainActivity extends AppCompatActivity {
                 mQueue.start();
             }
         }).start();
+    }
+    private void initWidget(){
+        adapter = new NewsAdapter(MainActivity.this, R.layout.news_item, newsList);
+        ListView listView = (ListView) findViewById(R.id.title_list);
+        listView.setAdapter(adapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                NewsInfo newsInfo = newsList.get(position);
+                Toast.makeText(MainActivity.this, newsInfo.getTitle(), Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(MainActivity.this,ArticleActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("id",String .valueOf(newsInfo.getId()));
+                intent.putExtra("id",bundle);
+                startActivity(intent);
+            }
+        });
+        zhihuDailyDB = ZhihuDailyDB.getInstance(mainActivity);
     }
 }
 

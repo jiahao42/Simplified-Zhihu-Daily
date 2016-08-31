@@ -33,6 +33,43 @@ public class NewsInfo implements Serializable{
     @SerializedName("multipic")
     private boolean multipic;
     private Bitmap bitmap;
+    private String date;
+    private String content;
+
+    public NewsInfo(){}
+
+    public NewsInfo(String title, String[] urls, int id, int type, int ga_prefix){
+        this.title = title;
+        this.urls = urls;
+        this.id = id;
+        this.type = type;
+        this.ga_prefix = ga_prefix;
+    }
+
+    public NewsInfo(String title, String[] urls, int id, int type, int ga_prefix, boolean multipic){
+        this.title = title;
+        this.urls = urls;
+        this.id = id;
+        this.type = type;
+        this.ga_prefix = ga_prefix;
+        this.multipic = multipic;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
 
     public Bitmap getBitmap() {
         return bitmap;
@@ -40,23 +77,6 @@ public class NewsInfo implements Serializable{
 
     public void setBitmap(Bitmap bitmap) {
         this.bitmap = bitmap;
-    }
-
-    NewsInfo(String title, String[] urls, int id, int type, int ga_prefix){
-        this.title = title;
-        this.urls = urls;
-        this.id = id;
-        this.type = type;
-        this.ga_prefix = ga_prefix;
-    }
-
-    NewsInfo(String title, String[] urls, int id, int type, int ga_prefix, boolean multipic){
-        this.title = title;
-        this.urls = urls;
-        this.id = id;
-        this.type = type;
-        this.ga_prefix = ga_prefix;
-        this.multipic = multipic;
     }
 
     public boolean isMultipic() {
@@ -103,9 +123,12 @@ public class NewsInfo implements Serializable{
         return id;
     }
 
-
     public String getUrls() {
         return urls[0];
+    }
+
+    public void setUrls(String string){
+        this.urls[0] = string;
     }
 }
 

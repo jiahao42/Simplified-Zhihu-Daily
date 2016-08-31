@@ -26,11 +26,12 @@ import james.com.simplezhihudaily.Model.DeviceInfo;
 import james.com.simplezhihudaily.Model.Symbol;
 import james.com.simplezhihudaily.R;
 import james.com.simplezhihudaily.Util.Util;
+import james.com.simplezhihudaily.db.ZhihuDailyDB;
 
 
 public class ArticleActivity extends Activity {
     private Intent intent;
-    private int id;
+    private String id;
     private RequestQueue mQueue;
     private WebView article;
     private String url = "http://news-at.zhihu.com/api/4/news/";
@@ -39,6 +40,7 @@ public class ArticleActivity extends Activity {
     private Document document;
     private String body;
     private ArticleActivity articleActivity;
+    private ZhihuDailyDB zhihuDailyDB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +76,10 @@ public class ArticleActivity extends Activity {
                         try
                         {
                             htmlString = response.getString("body");
+                            /*
+                            此处也要判断 若id对应的content不为空 则不用插入
+                             */
+                            zhihuDailyDB.insertContent(id,htmlString);
                             cssUrl = response.getString("css");
                             Message message = new Message();
                             message.what = Symbol.RECEIVE_SUCCESS;
@@ -101,9 +107,10 @@ public class ArticleActivity extends Activity {
         mQueue = Volley.newRequestQueue(articleActivity);
         intent = getIntent();
         Bundle bundle = intent.getBundleExtra("id");
-        id = bundle.getInt("id");
+        id = bundle.getString("id");
         article.getSettings().setAppCacheEnabled(true);// 设置启动缓存
         article.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
         article.getSettings().setLayoutAlgorithm(WebSettings.LayoutAlgorithm.SINGLE_COLUMN);//适应屏幕，内容将自动缩
+        zhihuDailyDB = ZhihuDailyDB.getInstance(articleActivity);
     }
 }
