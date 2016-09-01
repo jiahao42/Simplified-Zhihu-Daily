@@ -24,8 +24,8 @@
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
             android:gravity="center_horizontal"
+            android:layout_marginTop="10dp"
             android:src="@drawable/arrow_down"/>
         <TextView
             android:id="@+id/title_date"

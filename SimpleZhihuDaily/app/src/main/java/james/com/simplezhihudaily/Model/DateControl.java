@@ -19,6 +19,7 @@ public class DateControl {
     public static synchronized DateControl getInstance(int today) {
         if (dateControl == null)
         {
+            Log.d("dateControlCreate",String.valueOf(today));
             dateControl = new DateControl(today);
         }
         return dateControl;
@@ -50,7 +51,7 @@ public class DateControl {
         }
         int combined = year * 10000 + month * 100 + day;
         dateControl.cursor = combined;
-        Log.d("cursorSub",String.valueOf(combined));
+        Log.d("dateControlSub",String.valueOf(combined));
     }
 
     /**
@@ -61,6 +62,7 @@ public class DateControl {
     public synchronized boolean addOneDay() {
         if (dateControl.cursor + 1 > dateControl.today)
         {
+            Log.d("dateControl","AlreadyLatestDay");
             return false;
         } else
         {
@@ -68,7 +70,7 @@ public class DateControl {
             int year = dateControl.cursor / 10000;
             int month = (dateControl.cursor % 10000 - dateControl.cursor % 100) / 100;
             int day = dateControl.cursor % 100;
-            if ((day + 1) % days[month - 1] == 0)
+            if ((day + 1) % days[month - 1] == 1)
             {//根据月份得到每个月的天数 注意减一
                 day = 1;
                 if ((month + 1) % 12 == 0)
@@ -85,7 +87,7 @@ public class DateControl {
             }
             int combined = year * 10000 + month * 100 + day;
             dateControl.cursor = combined;
-            Log.d("cursorAdd",String.valueOf(combined));
+            Log.d("dateControlAdd",String.valueOf(combined));
             return true;
         }
     }

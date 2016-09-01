@@ -29,7 +29,7 @@ import james.com.simplezhihudaily.Util.Util;
 
 
 public class SplashActivity extends Activity {
-    private final int SPLASH_DISPLAY_LENGHT = 6000; // 延迟六秒
+    private final int SPLASH_DISPLAY_LENGHT = 4000; // 延迟六秒
     private ImageView splash_img;
     private RequestQueue mQueue;
     private final SplashActivity splashActivity = this;

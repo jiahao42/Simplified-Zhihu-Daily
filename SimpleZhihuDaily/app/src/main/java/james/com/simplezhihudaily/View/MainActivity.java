@@ -14,8 +14,10 @@ import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AbsListView;
+import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -28,7 +30,6 @@ import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
-import com.google.gson.annotations.SerializedName;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -45,8 +46,6 @@ import james.com.simplezhihudaily.Model.Url;
 import james.com.simplezhihudaily.R;
 import james.com.simplezhihudaily.Util.Util;
 import james.com.simplezhihudaily.db.ZhihuDailyDB;
-
-import static android.provider.ContactsContract.CommonDataKinds.Website.URL;
 
 /**
  * TODO
@@ -72,8 +71,9 @@ public class MainActivity extends Activity {
     private RefreshableView refreshableView;
     private ImageView beforeTheDay;
     private ImageView afterTheDay;
-    private TextView title_date;
+    private TextView titleDate;
     private DateControl dateControl;
+    private TextView titleText;
 
 
     private boolean mIsShowTitle = false;
@@ -89,8 +89,9 @@ public class MainActivity extends Activity {
         initWidget();
         //setListener();
         //doLogic();
-        get_news_url("latest");
+        getNewsUrl("latest");
     }
+
     private final Handler get_url_array_handler = new Handler() {
         @Override
         public void handleMessage(Message message) {
@@ -104,20 +105,23 @@ public class MainActivity extends Activity {
                     Log.d("TAG", newsList.get(i).getUrls());
                     picUrls[i] = newsList.get(i).getUrls();
                     newsList.get(i).setBitmap(bitmap);
+                    adapter.notifyDataSetChanged();//将notify放进了循环 如果网特别差 图片还可以一张张跳出来
                 }
-                get_news_pics();
+                getNewsPics();
             }
         }
     };
 
-    private void get_news_url(final String certainDate) {
+    private void getNewsUrl(final String certainDate) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 String finalUrl;
-                if (certainDate.equals("latest")){
+                if (certainDate.equals("latest"))
+                {
                     finalUrl = Url.getLatestNews;
-                }else {
+                } else
+                {
                     finalUrl = Url.getNewsBefore + certainDate;
                 }
                 mQueue = Volley.newRequestQueue(mainActivity);
@@ -131,14 +135,16 @@ public class MainActivity extends Activity {
                             //获得所有日报的Json信息 注意是一个数组 将其转化成对象后 再通过bundle传递
                             NewsInfo[] newsInfo = gson.fromJson(response.getString("stories"), NewsInfo[].class);
                             String date = gson.fromJson(response.getString("date"), String.class);
-                            title_date.setText(Util.analyzeDate(date));
+                            if (certainDate.equals("latest")){
+                                titleDate.setText(Util.analyzeDate(String.valueOf(date)));
+                            }
                             for (int i = 0; i < newsInfo.length; i++)
                             {
                                 newsInfo[i].setDate(date);
                                 Log.d("newsInfo", newsInfo[i].getTitle());
                             }
                             dateControl = DateControl.getInstance(Integer.parseInt(date));
-                            Log.d("today is : ", String .valueOf(dateControl.getToday()));
+                            Log.d("today is : ", String.valueOf(dateControl.getToday()));
                             int count = zhihuDailyDB.isInserted(date, newsInfo.length);
                             for (int i = 0; i < count; i++)
                             {
@@ -157,9 +163,13 @@ public class MainActivity extends Activity {
                             }
                             /*
                             此处得到了所有的带有基本信息的对象集合
+
                              */
-                            //Log.d("date", newsInfo[0].getDate());
+                            adapter = new NewsAdapter(MainActivity.this, R.layout.news_item, newsList);
+                            newsList.clear();
                             Collections.addAll(newsList, newsInfo);
+                            listView.setAdapter(adapter);
+                            adapter.notifyDataSetChanged();//先notify一下 让文字先显示出来
                             Message message = new Message();
                             message.what = Symbol.RECEIVE_SUCCESS;
                             get_url_array_handler.sendMessage(message);
@@ -181,7 +191,7 @@ public class MainActivity extends Activity {
     }
 
     //获取新闻图片
-    private void get_news_pics() {
+    private void getNewsPics() {
         final Handler get_pics_handler = new Handler() {
             @Override
             public void handleMessage(Message message) {
@@ -226,9 +236,11 @@ public class MainActivity extends Activity {
     private void initWidget() {
         listView = (ListView) findViewById(R.id.title_list);
         //bottom = (TextView) findViewById(R.id.bottom);
-        beforeTheDay = (ImageView)findViewById(R.id.arrow_left);
-        afterTheDay = (ImageView)findViewById(R.id.arrow_right);
-        title_date = (TextView)findViewById(R.id.title_date);
+        beforeTheDay = (ImageView) findViewById(R.id.arrow_left);
+        afterTheDay = (ImageView) findViewById(R.id.arrow_right);
+        titleDate = (TextView) findViewById(R.id.title_date);
+        titleText = (TextView) findViewById(R.id.title);
+        titleText.bringToFront();
         initListener();
         //topBar = (RelativeLayout) findViewById(R.id.top_bar);
         zhihuDailyDB = ZhihuDailyDB.getInstance(mainActivity);
@@ -239,10 +251,10 @@ public class MainActivity extends Activity {
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 NewsInfo newsInfo = newsList.get(position);
                 Toast.makeText(mainActivity, newsInfo.getTitle(), Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(mainActivity,ArticleActivity.class);
+                Intent intent = new Intent(mainActivity, ArticleActivity.class);
                 Bundle bundle = new Bundle();
-                bundle.putString("id",String.valueOf(newsInfo.getId()));
-                intent.putExtra("id",bundle);
+                bundle.putString("id", String.valueOf(newsInfo.getId()));
+                intent.putExtra("id", bundle);
                 startActivity(intent);
 
             }
@@ -251,36 +263,59 @@ public class MainActivity extends Activity {
         refreshableView.setOnRefreshListener(new RefreshableView.PullToRefreshListener() {
             @Override
             public void onRefresh() {
-                try {
-                    get_news_url("latest");
+                try
+                {
+                    getNewsUrl("latest");
                     Thread.sleep(3000);
-                } catch (InterruptedException e) {
+                } catch (InterruptedException e)
+                {
                     e.printStackTrace();
                 }
-                //get_news_url();
+                //getNewsUrl();
                 refreshableView.finishRefreshing();
             }
         }, 0);
     }
-    private void initListener(){
+
+    private void initListener() {
         /**
          *  获取前一天的数据
          *  1. 先从数据库读取date
          *  2.1 若有date 则提取出id
          *  2.2 若无date 则构造一个date向服务器发出请求 获取特定日期的新闻列表
          *  3. 重新设置适配器
+         *
+         *  注意：知乎过往文章的请求是这样的：
+         *      比如我要请求9月1日的文章，那么url中应该是9月2日
+         *  而在数据库则没有这个问题，应当引起注意
          */
         beforeTheDay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //DateControl dateControl = DateControl.getInstance();
                 dateControl.subOneDay();
-                if (zhihuDailyDB.hasTheDate(String.valueOf(dateControl.getCursor()))){
+                if (zhihuDailyDB.hasTheDate(String.valueOf(dateControl.getCursor())))
+                {
+                    titleDate.setText(Util.analyzeDate(String.valueOf(dateControl.getCursor())));
+                    /*
                     newsList = new ArrayList<NewsInfo>();
+                    不能使用上述方法 因为这样的话等于重新建立了一个对象 该对象并不是观察者
+                     */
+                    adapter = new NewsAdapter(MainActivity.this, R.layout.news_item, newsList);
+                    newsList.clear();
                     newsList.addAll(zhihuDailyDB.loadNewsInfo(String.valueOf(dateControl.getCursor())));
-                    adapter.notifyDataSetChanged();
-                }else {
-                    get_news_url(String.valueOf(dateControl.getCursor()));
+                    listView.setAdapter(adapter);
+                    /*
+                    从数据库中取出来的对象 只有配图的url 而没有配图的图片 所以得去服务器请求
+                     */
+                    adapter.notifyDataSetChanged();//先出现文字 再开始请求图片
+                    getPicFromNet();
+                } else
+                {
+                    titleDate.setText(Util.analyzeDate(String.valueOf(dateControl.getCursor())));
+                    dateControl.addOneDay();
+                    getNewsUrl(String.valueOf(dateControl.getCursor()));
+                    dateControl.subOneDay();
                 }
             }
         });
@@ -288,22 +323,59 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View view) {
                 //DateControl dateControl = DateControl.getInstance();
-                if (dateControl.addOneDay()){
-                    listView.setVisibility(View.INVISIBLE);
-                }else {
-                    if (zhihuDailyDB.hasTheDate(String.valueOf(dateControl.getCursor()))){
-                        newsList = new ArrayList<NewsInfo>();
+                if (!dateControl.addOneDay())
+                {
+                    Toast.makeText(mainActivity, "已经是最后一天了", Toast.LENGTH_SHORT).show();
+                } else
+                {
+                    if (zhihuDailyDB.hasTheDate(String.valueOf(dateControl.getCursor())))
+                    {
+                        titleDate.setText(Util.analyzeDate(String.valueOf(dateControl.getCursor())));
+                    /*
+                    newsList = new ArrayList<NewsInfo>();
+                    不能使用上述方法 因为这样的话等于重新建立了一个对象 该对象并不是观察者
+                    无法使用notifyDataSetChanged()
+                     */
+                        // ... Modify adapter ... do anything else you need to do
+                        // To clear the recycled views list :
+                        adapter = new NewsAdapter(MainActivity.this, R.layout.news_item, newsList);
+                        newsList.clear();
                         newsList.addAll(zhihuDailyDB.loadNewsInfo(String.valueOf(dateControl.getCursor())));
-                        adapter.notifyDataSetChanged();
-                    }else {
-                        get_news_url(String .valueOf(dateControl.getCursor()));
+                        listView.setAdapter (adapter);
+                    /*
+                    从数据库中取出来的对象 只有配图的url 而没有配图的图片 所以得去服务器请求
+                     */
+                        adapter.notifyDataSetChanged();//先出现文字 再开始请求图片
+                        getPicFromNet();
+                    } else
+                    {
+                        dateControl.addOneDay();
+                        titleDate.setText(Util.analyzeDate(String.valueOf(dateControl.getCursor())));
+                        dateControl.subOneDay();
+                        getNewsUrl(String.valueOf(dateControl.getCursor()));
                     }
                 }
 
             }
         });
     }
+    private void getPicFromNet(){
+        picUrls = new String[newsList.size()];
+        Resources res = getResources();
+        Bitmap bitmap = BitmapFactory.decodeResource(res, R.drawable.error);
+        for (int i = 0; i < newsList.size(); i++)
+        {
+            Log.d("TAG", newsList.get(i).getUrls());
+            picUrls[i] = newsList.get(i).getUrls();
+            newsList.get(i).setBitmap(bitmap);
+            adapter.notifyDataSetChanged();//将notify放进了循环 如果网特别差 图片还可以一张张跳出来
+        }
+        getNewsPics();
+    }
 
+    /**
+     * 在应用不被杀死的情况下重新打开应用不会出现Splash Activity
+     */
     @Override
     public void onBackPressed() {
         // super.onBackPressed(); 	不要调用父类的方法
