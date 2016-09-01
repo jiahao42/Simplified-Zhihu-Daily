@@ -4,6 +4,7 @@
     <option name="excludedDirectories">
       <list>
         <option value="$PROJECT_DIR$/volley" />
+        <option value="$PROJECT_DIR$/app/build" />
       </list>
     </option>
   </component>

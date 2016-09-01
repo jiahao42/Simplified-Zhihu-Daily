@@ -71,6 +71,7 @@ public class MainActivity extends Activity {
     private TextView bottom;
     private RelativeLayout topBar;
     private ListView listView;
+    RefreshableView refreshableView;
 
 
     private boolean mIsShowTitle = false;
@@ -82,10 +83,10 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main_try);
         initWidget();
-        setListener();
-        doLogic();
+        //setListener();
+        //doLogic();
         get_news_url();
     }
 
@@ -112,8 +113,8 @@ public class MainActivity extends Activity {
             @Override
             public void run() {
                 mQueue = Volley.newRequestQueue(mainActivity);
-                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest("http://news-at.zhihu.com/api/4/news/latest",
-                        null, new Response.Listener<JSONObject>() {
+                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+                        "http://news-at.zhihu.com/api/4/news/latest", null, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         try
@@ -212,11 +213,37 @@ public class MainActivity extends Activity {
     }
 
     private void initWidget() {
-        adapter = new NewsAdapter(MainActivity.this, R.layout.news_item, newsList);
         listView = (ListView) findViewById(R.id.title_list);
         bottom = (TextView) findViewById(R.id.bottom);
-        topBar = (RelativeLayout) findViewById(R.id.top_bar);
+        //topBar = (RelativeLayout) findViewById(R.id.top_bar);
         zhihuDailyDB = ZhihuDailyDB.getInstance(mainActivity);
+        adapter = new NewsAdapter(MainActivity.this, R.layout.news_item, newsList);
+        listView.setAdapter(adapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                NewsInfo newsInfo = newsList.get(position);
+                Toast.makeText(mainActivity, newsInfo.getTitle(), Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(mainActivity,ArticleActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("id",String.valueOf(newsInfo.getId()));
+                intent.putExtra("id",bundle);
+                startActivity(intent);
+
+            }
+        });
+        refreshableView = (RefreshableView) findViewById(R.id.refreshable_view);
+        refreshableView.setOnRefreshListener(new RefreshableView.PullToRefreshListener() {
+            @Override
+            public void onRefresh() {
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                refreshableView.finishRefreshing();
+            }
+        }, 0);
     }
 
     @Override
@@ -228,6 +255,7 @@ public class MainActivity extends Activity {
         startActivity(intent);
     }
 
+    /*
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         if (hasFocus)
@@ -238,6 +266,7 @@ public class MainActivity extends Activity {
             showHideTitle(false, 0);
         }
     }
+    */
 
     private void setListener() {
         listView.setOnScrollListener(new AbsListView.OnScrollListener() {

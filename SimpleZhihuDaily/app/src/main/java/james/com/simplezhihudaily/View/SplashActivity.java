@@ -7,7 +7,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
@@ -31,18 +33,21 @@ public class SplashActivity extends Activity {
     private ImageView splash_img;
     private RequestQueue mQueue;
     private final SplashActivity splashActivity = this;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.splash_activity);
         splash_img = (ImageView) findViewById(R.id.splash_img);
+        progressBar = (ProgressBar)findViewById(R.id.progress);
         mQueue = Volley.newRequestQueue(splashActivity);
 
         new Handler().postDelayed(new Runnable() {
             public void run() {
                 Intent mainIntent = new Intent(SplashActivity.this,
                         MainActivity.class);
+                progressBar.setVisibility(View.INVISIBLE);
                 SplashActivity.this.startActivity(mainIntent);
                 SplashActivity.this.finish();
             }
@@ -54,7 +59,6 @@ public class SplashActivity extends Activity {
                     Bundle bundle = msg.getData();
                     String url = bundle.getString("url");
                     Log.d("----URL----",url);
-                    Toast.makeText(splashActivity,"开始获取图片",Toast.LENGTH_SHORT).show();
                     getPicture(url);
                 }
             }
