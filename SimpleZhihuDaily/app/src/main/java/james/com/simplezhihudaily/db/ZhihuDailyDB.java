@@ -14,10 +14,10 @@ import james.com.simplezhihudaily.Model.NewsInfo;
 
 public class ZhihuDailyDB {
     //db name
-    public static final String DB_NAME = "ZhihuDaily";
+    private static final String DB_NAME = "ZhihuDaily";
     //db version
-    public static final int VERSION = 1;
-    public static ZhihuDailyDB zhihuDailyDB;
+    private static final int VERSION = 1;
+    private static ZhihuDailyDB zhihuDailyDB;
     private SQLiteDatabase db;
 
     /**
@@ -126,21 +126,35 @@ public class ZhihuDailyDB {
             return htmlString;
         }
     }
+    public boolean hasTheDate(String certainDate){
+        Cursor cursor = db.query(ZhihuDailyDBhelper.TABLE_NAME,null,"date = ?",new String[]{certainDate},null,null,null,null);
+        if (cursor.getCount() == 0){
+            cursor.close();
+            return false;
+        }else {
+            cursor.close();
+            return true;
+        }
+    }
     /**
      * read the news of a certain day
      * @param date which day do you want to read ?
     */
     public List<NewsInfo> loadNewsInfo(String  date){
+        Log.d("TheDateIWantToReadInDB",date);
         List<NewsInfo> list = new ArrayList<>();
-        Cursor cursor = db.query(ZhihuDailyDBhelper.TABLE_NAME,null,"date = ?",new String[] {date,null,null,null,null},null,null,null,null);
+        Cursor cursor = db.query(ZhihuDailyDBhelper.TABLE_NAME,null,"date = ?",new String[] {date},null,null,null,null);
+        Log.d("HowManyDate",String.valueOf(cursor.getCount()));
         if (cursor.moveToFirst()){
             do{
                 NewsInfo newsInfo = new NewsInfo();
                 newsInfo.setId(cursor.getInt(cursor.getColumnIndex("id")));
                 newsInfo.setDate(date);
                 newsInfo.setContent(cursor.getString(cursor.getColumnIndex("content")));
+                Log.d("whatsInTheDB",cursor.getString(cursor.getColumnIndex("img")));
                 newsInfo.setUrls(cursor.getString(cursor.getColumnIndex("img")));
                 newsInfo.setTitle(cursor.getString(cursor.getColumnIndex("title")));
+                Log.d("whatsInTheDB",newsInfo.toString());
                 list.add(newsInfo);
             }while (cursor.moveToNext());
         }

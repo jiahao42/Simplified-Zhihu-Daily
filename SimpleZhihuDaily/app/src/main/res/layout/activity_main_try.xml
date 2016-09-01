@@ -14,18 +14,36 @@
         android:layout_height="50dp">
         <TextView
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:gravity="center"
+            android:layout_height="30dp"
+            android:layout_marginTop="5sp"
+            android:gravity="center_horizontal"
             android:text="今日热闻"
-            android:textSize="30sp"
+            android:textColor="#000000"
+            android:textSize="20sp"
             android:id="@+id/title"/>
         <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:gravity="center_horizontal"
+            android:src="@drawable/arrow_down"/>
+        <TextView
+            android:id="@+id/title_date"
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:layout_marginTop="35sp"
+            android:textSize="13sp"
+            android:gravity="center_horizontal"
+            android:text="This is the date"/>
+        <ImageView
+            android:id="@+id/arrow_left"
             android:layout_width="wrap_content"
             android:layout_height="30dp"
             android:src="@drawable/arrow_left"
             android:layout_marginTop="10dp"
             android:layout_marginLeft="10dp"/>
         <ImageView
+            android:id="@+id/arrow_right"
             android:src="@drawable/arrow_right"
             android:layout_width="wrap_content"
             android:layout_height="30dp"

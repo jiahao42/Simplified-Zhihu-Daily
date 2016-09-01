@@ -33,4 +33,11 @@ public class Util {
 			}
          */
     }
+    public static String analyzeDate(String date){
+        String year = date.substring(0,4);
+        String month = date.substring(4,6);
+        String day = date.substring(6,8);
+        Log.d("date",year+month+day);
+        return (year + "年" + month + "月" + day + "日");
+    }
 }

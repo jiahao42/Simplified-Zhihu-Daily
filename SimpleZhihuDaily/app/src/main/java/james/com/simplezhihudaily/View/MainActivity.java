@@ -1,6 +1,5 @@
 package james.com.simplezhihudaily.View;
 
-import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Intent;
@@ -9,17 +8,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.Window;
-import android.view.animation.AccelerateInterpolator;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -33,6 +28,7 @@ import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,14 +37,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import james.com.simplezhihudaily.Model.DateControl;
 import james.com.simplezhihudaily.Model.NewsAdapter;
 import james.com.simplezhihudaily.Model.NewsInfo;
 import james.com.simplezhihudaily.Model.Symbol;
+import james.com.simplezhihudaily.Model.Url;
 import james.com.simplezhihudaily.R;
+import james.com.simplezhihudaily.Util.Util;
 import james.com.simplezhihudaily.db.ZhihuDailyDB;
 
-import static android.R.attr.id;
-import static android.R.attr.inAnimation;
+import static android.provider.ContactsContract.CommonDataKinds.Website.URL;
 
 /**
  * TODO
@@ -71,7 +69,11 @@ public class MainActivity extends Activity {
     private TextView bottom;
     private RelativeLayout topBar;
     private ListView listView;
-    RefreshableView refreshableView;
+    private RefreshableView refreshableView;
+    private ImageView beforeTheDay;
+    private ImageView afterTheDay;
+    private TextView title_date;
+    private DateControl dateControl;
 
 
     private boolean mIsShowTitle = false;
@@ -87,34 +89,40 @@ public class MainActivity extends Activity {
         initWidget();
         //setListener();
         //doLogic();
-        get_news_url();
+        get_news_url("latest");
     }
-
-    private void get_news_url() {
-        final Handler get_url_array_handler = new Handler() {
-            @Override
-            public void handleMessage(Message message) {
-                if (message.what == Symbol.RECEIVE_SUCCESS)
+    private final Handler get_url_array_handler = new Handler() {
+        @Override
+        public void handleMessage(Message message) {
+            if (message.what == Symbol.RECEIVE_SUCCESS)
+            {
+                picUrls = new String[newsList.size()];
+                Resources res = getResources();
+                Bitmap bitmap = BitmapFactory.decodeResource(res, R.drawable.error);
+                for (int i = 0; i < newsList.size(); i++)
                 {
-                    picUrls = new String[newsList.size()];
-                    Resources res = getResources();
-                    Bitmap bitmap = BitmapFactory.decodeResource(res, R.drawable.error);
-                    for (int i = 0; i < newsList.size(); i++)
-                    {
-                        Log.d("TAG", newsList.get(i).getUrls());
-                        picUrls[i] = newsList.get(i).getUrls();
-                        newsList.get(i).setBitmap(bitmap);
-                    }
-                    get_news_pics();
+                    Log.d("TAG", newsList.get(i).getUrls());
+                    picUrls[i] = newsList.get(i).getUrls();
+                    newsList.get(i).setBitmap(bitmap);
                 }
+                get_news_pics();
             }
-        };
+        }
+    };
+
+    private void get_news_url(final String certainDate) {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                String finalUrl;
+                if (certainDate.equals("latest")){
+                    finalUrl = Url.getLatestNews;
+                }else {
+                    finalUrl = Url.getNewsBefore + certainDate;
+                }
                 mQueue = Volley.newRequestQueue(mainActivity);
                 JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
-                        "http://news-at.zhihu.com/api/4/news/latest", null, new Response.Listener<JSONObject>() {
+                        finalUrl, null, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         try
@@ -123,11 +131,14 @@ public class MainActivity extends Activity {
                             //获得所有日报的Json信息 注意是一个数组 将其转化成对象后 再通过bundle传递
                             NewsInfo[] newsInfo = gson.fromJson(response.getString("stories"), NewsInfo[].class);
                             String date = gson.fromJson(response.getString("date"), String.class);
+                            title_date.setText(Util.analyzeDate(date));
                             for (int i = 0; i < newsInfo.length; i++)
                             {
                                 newsInfo[i].setDate(date);
                                 Log.d("newsInfo", newsInfo[i].getTitle());
                             }
+                            dateControl = DateControl.getInstance(Integer.parseInt(date));
+                            Log.d("today is : ", String .valueOf(dateControl.getToday()));
                             int count = zhihuDailyDB.isInserted(date, newsInfo.length);
                             for (int i = 0; i < count; i++)
                             {
@@ -147,7 +158,7 @@ public class MainActivity extends Activity {
                             /*
                             此处得到了所有的带有基本信息的对象集合
                              */
-                            Log.d("date", newsInfo[0].getDate());
+                            //Log.d("date", newsInfo[0].getDate());
                             Collections.addAll(newsList, newsInfo);
                             Message message = new Message();
                             message.what = Symbol.RECEIVE_SUCCESS;
@@ -196,7 +207,7 @@ public class MainActivity extends Activity {
                             message.setData(bundle);
                             message.what = Symbol.RECEIVE_SUCCESS;
                             get_pics_handler.sendMessage(message);
-                            Log.d("imageRequest", "received" + count);
+                            //Log.d("imageRequest", "received" + count);
                         }
                     }, 0, 0, ImageView.ScaleType.CENTER, Bitmap.Config.RGB_565, new Response.ErrorListener() {
                         @Override
@@ -205,7 +216,7 @@ public class MainActivity extends Activity {
                         }
                     });
                     mQueue.add(imageRequest);
-                    Log.d("imageRequest", "added" + count);
+                    //Log.d("imageRequest", "added" + count);
                 }
                 mQueue.start();
             }
@@ -214,7 +225,11 @@ public class MainActivity extends Activity {
 
     private void initWidget() {
         listView = (ListView) findViewById(R.id.title_list);
-        bottom = (TextView) findViewById(R.id.bottom);
+        //bottom = (TextView) findViewById(R.id.bottom);
+        beforeTheDay = (ImageView)findViewById(R.id.arrow_left);
+        afterTheDay = (ImageView)findViewById(R.id.arrow_right);
+        title_date = (TextView)findViewById(R.id.title_date);
+        initListener();
         //topBar = (RelativeLayout) findViewById(R.id.top_bar);
         zhihuDailyDB = ZhihuDailyDB.getInstance(mainActivity);
         adapter = new NewsAdapter(MainActivity.this, R.layout.news_item, newsList);
@@ -237,13 +252,56 @@ public class MainActivity extends Activity {
             @Override
             public void onRefresh() {
                 try {
+                    get_news_url("latest");
                     Thread.sleep(3000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+                //get_news_url();
                 refreshableView.finishRefreshing();
             }
         }, 0);
+    }
+    private void initListener(){
+        /**
+         *  获取前一天的数据
+         *  1. 先从数据库读取date
+         *  2.1 若有date 则提取出id
+         *  2.2 若无date 则构造一个date向服务器发出请求 获取特定日期的新闻列表
+         *  3. 重新设置适配器
+         */
+        beforeTheDay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //DateControl dateControl = DateControl.getInstance();
+                dateControl.subOneDay();
+                if (zhihuDailyDB.hasTheDate(String.valueOf(dateControl.getCursor()))){
+                    newsList = new ArrayList<NewsInfo>();
+                    newsList.addAll(zhihuDailyDB.loadNewsInfo(String.valueOf(dateControl.getCursor())));
+                    adapter.notifyDataSetChanged();
+                }else {
+                    get_news_url(String.valueOf(dateControl.getCursor()));
+                }
+            }
+        });
+        afterTheDay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //DateControl dateControl = DateControl.getInstance();
+                if (dateControl.addOneDay()){
+                    listView.setVisibility(View.INVISIBLE);
+                }else {
+                    if (zhihuDailyDB.hasTheDate(String.valueOf(dateControl.getCursor()))){
+                        newsList = new ArrayList<NewsInfo>();
+                        newsList.addAll(zhihuDailyDB.loadNewsInfo(String.valueOf(dateControl.getCursor())));
+                        adapter.notifyDataSetChanged();
+                    }else {
+                        get_news_url(String .valueOf(dateControl.getCursor()));
+                    }
+                }
+
+            }
+        });
     }
 
     @Override
@@ -255,6 +313,11 @@ public class MainActivity extends Activity {
         startActivity(intent);
     }
 
+
+
+    /*
+    以下都是通过判断滑动来隐藏标题栏的代码 暂未调用
+     */
     /*
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
