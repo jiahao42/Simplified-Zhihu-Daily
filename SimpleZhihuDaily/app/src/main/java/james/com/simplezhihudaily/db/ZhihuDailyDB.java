@@ -9,7 +9,7 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
-import james.com.simplezhihudaily.Model.NewsInfo;
+import james.com.simplezhihudaily.Model.Story;
 
 
 public class ZhihuDailyDB {
@@ -41,14 +41,14 @@ public class ZhihuDailyDB {
         return zhihuDailyDB;
     }
     //preserve instances to db
-    public void saveBaseNews(NewsInfo newsInfo){
-        if (newsInfo != null){
+    public void saveBaseStory(Story story){
+        if (story != null){
             ContentValues values = new ContentValues();
-            values.put("title", newsInfo.getTitle());
-            values.put("date", newsInfo.getDate());
-            values.put("img",newsInfo.getUrls());
-            values.put("id",newsInfo.getId());
-            values.put("content",newsInfo.getContent());
+            values.put("title", story.getTitle());
+            values.put("date", story.getDate());
+            values.put("img", story.getUrls());
+            values.put("id", story.getId());
+            values.put("content", story.getContent());
             db.insert("ZhihuNews" , null, values);
         }
     }
@@ -140,22 +140,22 @@ public class ZhihuDailyDB {
      * read the news of a certain day
      * @param date which day do you want to read ?
     */
-    public List<NewsInfo> loadNewsInfo(String  date){
+    public List<Story> loadStory(String  date){
         Log.d("TheDateIWantToReadInDB",date);
-        List<NewsInfo> list = new ArrayList<>();
+        List<Story> list = new ArrayList<>();
         Cursor cursor = db.query(ZhihuDailyDBhelper.TABLE_NAME,null,"date = ?",new String[] {date},null,null,null,null);
         Log.d("HowManyDate",String.valueOf(cursor.getCount()));
         if (cursor.moveToFirst()){
             do{
-                NewsInfo newsInfo = new NewsInfo();
-                newsInfo.setId(cursor.getInt(cursor.getColumnIndex("id")));
-                newsInfo.setDate(date);
-                newsInfo.setContent(cursor.getString(cursor.getColumnIndex("content")));
+                Story story = new Story();
+                story.setId(cursor.getInt(cursor.getColumnIndex("id")));
+                story.setDate(date);
+                story.setContent(cursor.getString(cursor.getColumnIndex("content")));
                 Log.d("whatsInTheDB",cursor.getString(cursor.getColumnIndex("img")));
-                newsInfo.setUrls(cursor.getString(cursor.getColumnIndex("img")));
-                newsInfo.setTitle(cursor.getString(cursor.getColumnIndex("title")));
-                Log.d("whatsInTheDB",newsInfo.toString());
-                list.add(newsInfo);
+                story.setUrls(cursor.getString(cursor.getColumnIndex("img")));
+                story.setTitle(cursor.getString(cursor.getColumnIndex("title")));
+                Log.d("whatsInTheDB", story.toString());
+                list.add(story);
             }while (cursor.moveToNext());
         }
         if (null != cursor){

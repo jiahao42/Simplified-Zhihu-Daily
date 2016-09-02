@@ -22,7 +22,8 @@ import static android.support.v7.widget.AppCompatDrawableManager.get;
  */
 //{"urls":["http:\/\/pic4.zhimg.com\/5baad8cabc7468b74b01229604bd0e73.jpg"],
 // "type":0,"id":8739884,"ga_prefix":"083010","title":"摆满货架的快消巨头，是如何失去了自己的黄金时代"},
-public class NewsInfo implements Serializable {
+public class Story implements Serializable {
+    private static final int isBaseStory = 0;
     @SerializedName("images")
     private String[] urls;
     @SerializedName("type")
@@ -39,10 +40,10 @@ public class NewsInfo implements Serializable {
     private String date;
     private String content;
 
-    public NewsInfo() {
+    public Story() {
     }
 
-    public NewsInfo(String title, String[] urls, int id, int type, int ga_prefix) {
+    public Story(String title, String[] urls, int id, int type, int ga_prefix) {
         this.title = title;
         this.urls = urls;
         this.id = id;
@@ -50,7 +51,7 @@ public class NewsInfo implements Serializable {
         this.ga_prefix = ga_prefix;
     }
 
-    public NewsInfo(String title, String[] urls, int id, int type, int ga_prefix, boolean multipic) {
+    public Story(String title, String[] urls, int id, int type, int ga_prefix, boolean multipic) {
         this.title = title;
         this.urls = urls;
         this.id = id;
@@ -155,5 +156,8 @@ public class NewsInfo implements Serializable {
     @Override
     public String toString() {
         return "id: " + getId() + ",date: " + getDate() + ",title: " + getTitle() + ",urls: " + getUrls("all");
+    }
+    public int getAttr(){
+        return isBaseStory;
     }
 }

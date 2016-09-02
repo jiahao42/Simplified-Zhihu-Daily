@@ -4,11 +4,6 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-
-import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
-
 public class ZhihuDailyDBhelper extends SQLiteOpenHelper {
     //create province
     private static final String COLUMN_TITLE = "title";
@@ -16,13 +11,18 @@ public class ZhihuDailyDBhelper extends SQLiteOpenHelper {
     private static final String COLUMN_CONTENT = "content";
     private static final String COLUMN_IMG = "img";
     private static final String COLUMN_ID = "id";
+    private static final String COLUMN_Attr = "attr";
+    private static final String COLUMN_themeID = "themeID";
     public static final String TABLE_NAME = "ZhihuNews";
     private static final String CREATE_TABLE = "create table " + TABLE_NAME + " ("
             + COLUMN_ID + " int unique, "//id代表文章 id必须是唯一的
             + COLUMN_TITLE + " text not null, "
             + COLUMN_CONTENT + " text, "//content 有可能为null
             + COLUMN_DATE + " text not null, "
-            + COLUMN_IMG + " text)";//img的url
+            + COLUMN_IMG + " text)"//img的url
+            + COLUMN_Attr + " int,"//文章属性 可以是下拉列表的文章 或者顶部的文章 或者专栏的文章
+            + COLUMN_themeID + " int)";
+
 
     public ZhihuDailyDBhelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);

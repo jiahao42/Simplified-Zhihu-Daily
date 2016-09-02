@@ -14,10 +14,9 @@ import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AbsListView;
-import android.widget.Adapter;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -40,8 +39,9 @@ import java.util.List;
 
 import james.com.simplezhihudaily.Model.DateControl;
 import james.com.simplezhihudaily.Model.NewsAdapter;
-import james.com.simplezhihudaily.Model.NewsInfo;
+import james.com.simplezhihudaily.Model.Story;
 import james.com.simplezhihudaily.Model.Symbol;
+import james.com.simplezhihudaily.Model.TopStory;
 import james.com.simplezhihudaily.Model.Url;
 import james.com.simplezhihudaily.R;
 import james.com.simplezhihudaily.Util.Util;
@@ -52,13 +52,15 @@ import james.com.simplezhihudaily.db.ZhihuDailyDB;
  * 1.默认从本地数据库读，设置下拉刷新，刷新后才调用之前写的方法
  * 2.下滑时要隐藏标题栏
  * 3.要写点赞，评论菜单，且单击后该菜单会出现或消失
- * 4.分栏目，抽屉式
+ * 4.分栏目，点击显示下拉列表，可以获取每个栏目的信息
  * 5.不显眼的注册登录功能，连接后台
+ * 6.写设置界面，比如可以选择3G情况下不自动加载图片等
  */
 
 
 public class MainActivity extends Activity {
-    private List<NewsInfo> newsList = new ArrayList<>();
+    private List<Story> newsList = new ArrayList<>();
+    private TopStory[] topStories;
     private RequestQueue mQueue;
     private MainActivity mainActivity = this;
     private Gson gson = new Gson();
@@ -74,6 +76,11 @@ public class MainActivity extends Activity {
     private TextView titleDate;
     private DateControl dateControl;
     private TextView titleText;
+    private Button button1;
+    private Button button2;
+    private Button button3;
+    private Button button4;
+    private Button button5;
 
 
     private boolean mIsShowTitle = false;
@@ -133,19 +140,25 @@ public class MainActivity extends Activity {
                         {
                             Log.d("TAG", response.getJSONArray("stories").toString());
                             //获得所有日报的Json信息 注意是一个数组 将其转化成对象后 再通过bundle传递
-                            NewsInfo[] newsInfo = gson.fromJson(response.getString("stories"), NewsInfo[].class);
+                            Story[] story = gson.fromJson(response.getString("stories"), Story[].class);
+                            topStories = gson.fromJson(response.getString("top_stories"),TopStory[].class);
                             String date = gson.fromJson(response.getString("date"), String.class);
                             if (certainDate.equals("latest")){
                                 titleDate.setText(Util.analyzeDate(String.valueOf(date)));
                             }
-                            for (int i = 0; i < newsInfo.length; i++)
+                            for (int i = 0; i < story.length; i++)
                             {
-                                newsInfo[i].setDate(date);
-                                Log.d("newsInfo", newsInfo[i].getTitle());
+                                story[i].setDate(date);
+                                Log.d("newsInfo", story[i].getTitle());
                             }
                             dateControl = DateControl.getInstance(Integer.parseInt(date));
                             Log.d("today is : ", String.valueOf(dateControl.getToday()));
-                            int count = zhihuDailyDB.isInserted(date, newsInfo.length);
+                            /*
+                            要存储topStory比较简单 
+                            因为固定是5张图片 所以不需要传入长度 但是需要isStory字段为1
+                             */
+                            // TODO: 2016/9/2  
+                            int count = zhihuDailyDB.isInserted(date, story.length);
                             for (int i = 0; i < count; i++)
                             {
                                     /*
@@ -159,7 +172,7 @@ public class MainActivity extends Activity {
                                     应该同时传入数组长度比较 然后直接返回更新title的个数
                                      */
                                 Log.d("TAG", "saving..." + i);
-                                zhihuDailyDB.saveBaseNews(newsInfo[i]);//注意新来的新闻在头部
+                                zhihuDailyDB.saveBaseStory(story[i]);//注意新来的新闻在头部
                             }
                             /*
                             此处得到了所有的带有基本信息的对象集合
@@ -167,7 +180,7 @@ public class MainActivity extends Activity {
                              */
                             adapter = new NewsAdapter(MainActivity.this, R.layout.news_item, newsList);
                             newsList.clear();
-                            Collections.addAll(newsList, newsInfo);
+                            Collections.addAll(newsList, story);
                             listView.setAdapter(adapter);
                             adapter.notifyDataSetChanged();//先notify一下 让文字先显示出来
                             Message message = new Message();
@@ -240,6 +253,11 @@ public class MainActivity extends Activity {
         afterTheDay = (ImageView) findViewById(R.id.arrow_right);
         titleDate = (TextView) findViewById(R.id.title_date);
         titleText = (TextView) findViewById(R.id.title);
+        button1 = (Button)findViewById(R.id.btn1);
+        button2 = (Button)findViewById(R.id.btn2);
+        button3 = (Button)findViewById(R.id.btn3);
+        button4 = (Button)findViewById(R.id.btn4);
+        button5 = (Button)findViewById(R.id.btn5);
         titleText.bringToFront();
         initListener();
         //topBar = (RelativeLayout) findViewById(R.id.top_bar);
@@ -249,11 +267,11 @@ public class MainActivity extends Activity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                NewsInfo newsInfo = newsList.get(position);
-                Toast.makeText(mainActivity, newsInfo.getTitle(), Toast.LENGTH_SHORT).show();
+                Story story = newsList.get(position);
+                Toast.makeText(mainActivity, story.getTitle(), Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(mainActivity, ArticleActivity.class);
                 Bundle bundle = new Bundle();
-                bundle.putString("id", String.valueOf(newsInfo.getId()));
+                bundle.putString("id", String.valueOf(story.getId()));
                 intent.putExtra("id", bundle);
                 startActivity(intent);
 
@@ -266,6 +284,7 @@ public class MainActivity extends Activity {
                 try
                 {
                     getNewsUrl("latest");
+                    dateControl.backToToday();//刷新后在点左箭头应该重新回到昨天的内容
                     Thread.sleep(3000);
                 } catch (InterruptedException e)
                 {
@@ -303,7 +322,7 @@ public class MainActivity extends Activity {
                      */
                     adapter = new NewsAdapter(MainActivity.this, R.layout.news_item, newsList);
                     newsList.clear();
-                    newsList.addAll(zhihuDailyDB.loadNewsInfo(String.valueOf(dateControl.getCursor())));
+                    newsList.addAll(zhihuDailyDB.loadStory(String.valueOf(dateControl.getCursor())));
                     listView.setAdapter(adapter);
                     /*
                     从数据库中取出来的对象 只有配图的url 而没有配图的图片 所以得去服务器请求
@@ -340,7 +359,7 @@ public class MainActivity extends Activity {
                         // To clear the recycled views list :
                         adapter = new NewsAdapter(MainActivity.this, R.layout.news_item, newsList);
                         newsList.clear();
-                        newsList.addAll(zhihuDailyDB.loadNewsInfo(String.valueOf(dateControl.getCursor())));
+                        newsList.addAll(zhihuDailyDB.loadStory(String.valueOf(dateControl.getCursor())));
                         listView.setAdapter (adapter);
                     /*
                     从数据库中取出来的对象 只有配图的url 而没有配图的图片 所以得去服务器请求
@@ -499,11 +518,11 @@ public class MainActivity extends Activity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                NewsInfo newsInfo = newsList.get(position);
-                Toast.makeText(MainActivity.this, newsInfo.getTitle(), Toast.LENGTH_SHORT).show();
+                Story story = newsList.get(position);
+                Toast.makeText(MainActivity.this, story.getTitle(), Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(MainActivity.this, ArticleActivity.class);
                 Bundle bundle = new Bundle();
-                bundle.putString("id", String.valueOf(newsInfo.getId()));
+                bundle.putString("id", String.valueOf(story.getId()));
                 intent.putExtra("id", bundle);
                 startActivity(intent);
             }

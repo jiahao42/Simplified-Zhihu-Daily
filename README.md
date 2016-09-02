@@ -4,3 +4,5 @@
 
 ## And [Here](http://jameeeees.github.io/posts/2016-08-28-Android%20notes.md.html) is my notes about the project.
 
+* Start on 2016.08.29
+
