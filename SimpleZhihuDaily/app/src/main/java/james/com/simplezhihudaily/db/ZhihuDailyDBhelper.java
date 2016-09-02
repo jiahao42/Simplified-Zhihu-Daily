@@ -12,15 +12,15 @@ public class ZhihuDailyDBhelper extends SQLiteOpenHelper {
     private static final String COLUMN_IMG = "img";
     private static final String COLUMN_ID = "id";
     private static final String COLUMN_Attr = "attr";
-    private static final String COLUMN_themeID = "themeID";
+    private static final String COLUMN_themeID = "categoryID";
     public static final String TABLE_NAME = "ZhihuNews";
     private static final String CREATE_TABLE = "create table " + TABLE_NAME + " ("
-            + COLUMN_ID + " int unique, "//id代表文章 id必须是唯一的
+            + COLUMN_ID + " int not null, "//id代表文章 id必须是唯一的
             + COLUMN_TITLE + " text not null, "
             + COLUMN_CONTENT + " text, "//content 有可能为null
             + COLUMN_DATE + " text not null, "
-            + COLUMN_IMG + " text)"//img的url
-            + COLUMN_Attr + " int,"//文章属性 可以是下拉列表的文章 或者顶部的文章 或者专栏的文章
+            + COLUMN_IMG + " text,"//img的url
+            + COLUMN_Attr + " int,"//文章属性 可以是下拉列表的文章(0) 或者顶部的文章(1) 或者主题日报的文章(2)
             + COLUMN_themeID + " int)";
 
 

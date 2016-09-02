@@ -47,6 +47,8 @@ import james.com.simplezhihudaily.R;
 import james.com.simplezhihudaily.Util.Util;
 import james.com.simplezhihudaily.db.ZhihuDailyDB;
 
+import static android.R.attr.top;
+
 /**
  * TODO
  * 1.默认从本地数据库读，设置下拉刷新，刷新后才调用之前写的方法
@@ -140,28 +142,43 @@ public class MainActivity extends Activity {
                         {
                             Log.d("TAG", response.getJSONArray("stories").toString());
                             //获得所有日报的Json信息 注意是一个数组 将其转化成对象后 再通过bundle传递
+                            /**
+                             * 注意：
+                             *      只有当日的新闻才会有"top_stories"这个json数组
+                             *      所以 当请求往日的数据时 并不能得到顶端栏目的数据
+                             *      只能通过数据库里现有的来读 如果读不到了 那么就保持原样即可
+                             *      或者更偷懒的方法是：顶端栏目始终不变
+                             */
                             Story[] story = gson.fromJson(response.getString("stories"), Story[].class);
-                            topStories = gson.fromJson(response.getString("top_stories"),TopStory[].class);
+                            if (certainDate.equals("latest")){//若是请求最新数据才有"top_stories"
+                                topStories = gson.fromJson(response.getString("top_stories"),TopStory[].class);
+                            }
+                            for (int i = 0; i < topStories.length; i++){
+                                Log.d("test",topStories[i].toString());
+                            }
                             String date = gson.fromJson(response.getString("date"), String.class);
                             if (certainDate.equals("latest")){
                                 titleDate.setText(Util.analyzeDate(String.valueOf(date)));
                             }
                             for (int i = 0; i < story.length; i++)
                             {
+                                if (certainDate.equals("latest") && i < 5){//每天固定五张图 就硬编码了
+                                    topStories[i].setDate(date);
+                                }
                                 story[i].setDate(date);
                                 Log.d("newsInfo", story[i].getTitle());
                             }
+                            /*
+                            实例化控制日期的单件
+                             */
                             dateControl = DateControl.getInstance(Integer.parseInt(date));
                             Log.d("today is : ", String.valueOf(dateControl.getToday()));
                             /*
                             要存储topStory比较简单 
                             因为固定是5张图片 所以不需要传入长度 但是需要isStory字段为1
                              */
-                            // TODO: 2016/9/2  
-                            int count = zhihuDailyDB.isInserted(date, story.length);
-                            for (int i = 0; i < count; i++)
-                            {
-                                    /*
+                            // TODO: 2016/9/2
+                            /*
                                     将其保存到数据库
                                     此处需要判断内容是否存在 否则会重复存储信息
                                     这里我选择用日期来判断
@@ -170,19 +187,25 @@ public class MainActivity extends Activity {
                                     这里有一个很tricky的问题 知乎日报的东西是每天逐渐增加的
                                     所以我之前直接根据日期来判断是否还要插入新的基本数据是不对的
                                     应该同时传入数组长度比较 然后直接返回更新title的个数
-                                     */
+                             */
+                            int count = zhihuDailyDB.isInserted(date, story.length);
+                            for (int i = 0; i < count; i++)
+                            {
                                 Log.d("TAG", "saving..." + i);
                                 zhihuDailyDB.saveBaseStory(story[i]);//注意新来的新闻在头部
                             }
+                            for (TopStory topStory : topStories)
+                            {
+                                zhihuDailyDB.saveTopStory(topStory);
+                            }
                             /*
                             此处得到了所有的带有基本信息的对象集合
-
                              */
                             adapter = new NewsAdapter(MainActivity.this, R.layout.news_item, newsList);
                             newsList.clear();
                             Collections.addAll(newsList, story);
                             listView.setAdapter(adapter);
-                            adapter.notifyDataSetChanged();//先notify一下 让文字先显示出来
+                            adapter.notifyDataSetChanged();//先notify一下 让文字先显示出来 再去请求图片
                             Message message = new Message();
                             message.what = Symbol.RECEIVE_SUCCESS;
                             get_url_array_handler.sendMessage(message);

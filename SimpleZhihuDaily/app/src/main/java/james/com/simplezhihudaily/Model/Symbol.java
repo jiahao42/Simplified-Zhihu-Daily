@@ -5,6 +5,9 @@ public class Symbol{
     public static final int RECEIVER_FAILED = 0;
     public static final int RECEIVER_TIMEOUT = -1;
     public static final int GET_ARTICLE_FROM_DB = 999;
+    public static final int BaseStory = 0;
+    public static final int TopStory = 1;
+    public static final int ThemeStory = 2;
 }
 /*
 Enum类在这里似乎是画蛇添足

@@ -22,58 +22,44 @@ import static android.support.v7.widget.AppCompatDrawableManager.get;
  */
 //{"urls":["http:\/\/pic4.zhimg.com\/5baad8cabc7468b74b01229604bd0e73.jpg"],
 // "type":0,"id":8739884,"ga_prefix":"083010","title":"摆满货架的快消巨头，是如何失去了自己的黄金时代"},
-public class Story implements Serializable {
+public class Story extends BaseStory implements Serializable {
     private static final int isBaseStory = 0;
-    @SerializedName("images")
-    private String[] urls;
-    @SerializedName("type")
-    private int type;
-    @SerializedName("id")
-    private int id;
-    @SerializedName("ga_prefix")
-    private int ga_prefix;
-    @SerializedName("title")
-    private String title;
-    @SerializedName("multipic")
-    private boolean multipic;
     private Bitmap bitmap;
-    private String date;
-    private String content;
 
     public Story() {
     }
 
-    public Story(String title, String[] urls, int id, int type, int ga_prefix) {
-        this.title = title;
-        this.urls = urls;
-        this.id = id;
-        this.type = type;
-        this.ga_prefix = ga_prefix;
+    public Story(String mTitle, String[] mUrls, int mId, int mType, int mGa_prefix) {
+        title = mTitle;
+        urls = mUrls;
+        id = mId;
+        type = mType;
+        ga_prefix = mGa_prefix;
     }
 
-    public Story(String title, String[] urls, int id, int type, int ga_prefix, boolean multipic) {
-        this.title = title;
-        this.urls = urls;
-        this.id = id;
-        this.type = type;
-        this.ga_prefix = ga_prefix;
-        this.multipic = multipic;
+    public Story(String mTitle, String[] mUrls, int mId, int mType, int mGa_prefix, boolean mMultipic) {
+        title = mTitle;
+        urls = mUrls;
+        id = mId;
+        type = mType;
+        ga_prefix = mGa_prefix;
+        multipic = mMultipic;
     }
 
     public String getContent() {
-        return this.content;
+        return content;
     }
 
-    public void setContent(String content) {
-        this.content = content;
+    public void setContent(String mContent) {
+        content = mContent;
     }
 
     public String getDate() {
-        return this.date;
+        return date;
     }
 
-    public void setDate(String date) {
-        this.date = date;
+    public void setDate(String mDate) {
+        date = mDate;
     }
 
     public Bitmap getBitmap() {
@@ -85,44 +71,44 @@ public class Story implements Serializable {
     }
 
     public boolean isMultipic() {
-        return this.multipic;
+        return multipic;
     }
 
-    public void setMultipic(boolean multipic) {
-        this.multipic = multipic;
+    public void setMultipic(boolean mMultipic) {
+        multipic = mMultipic;
     }
 
     public int getType() {
-        return this.type;
+        return type;
     }
 
     public int getGa_prefix() {
-        return this.ga_prefix;
+        return ga_prefix;
     }
 
 
-    public void setType(int type) {
-        this.type = type;
+    public void setType(int mType) {
+        type = mType;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setId(int mId) {
+        id = mId;
     }
 
-    public void setGa_prefix(int ga_prefix) {
-        this.ga_prefix = ga_prefix;
+    public void setGa_prefix(int mGa_prefix) {
+        ga_prefix = mGa_prefix;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setTitle(String mTitle) {
+        title = mTitle;
     }
 
     public String getTitle() {
-        return this.title;
+        return title;
     }
 
     public int getId() {
-        return this.id;
+        return id;
     }
 
     public String getUrls() {
@@ -145,12 +131,12 @@ public class Story implements Serializable {
 
     public void setUrls(String string) {
         urls = new String[1];
-        this.urls[0] = string;
+        urls[0] = string;
     }
 
-    public void setUrls(String[] urls) {
-        this.urls = new String[urls.length];
-        this.urls = urls;
+    public void setUrls(String[] mUrls) {
+        urls = new String[mUrls.length];
+        urls = mUrls;
     }
 
     @Override

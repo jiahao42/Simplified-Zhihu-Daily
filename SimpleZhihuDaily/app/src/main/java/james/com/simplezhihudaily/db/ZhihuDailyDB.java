@@ -9,7 +9,10 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
+import james.com.simplezhihudaily.Model.BaseStory;
 import james.com.simplezhihudaily.Model.Story;
+import james.com.simplezhihudaily.Model.ThemeStory;
+import james.com.simplezhihudaily.Model.TopStory;
 
 
 public class ZhihuDailyDB {
@@ -48,7 +51,33 @@ public class ZhihuDailyDB {
             values.put("date", story.getDate());
             values.put("img", story.getUrls());
             values.put("id", story.getId());
+            values.put("attr",story.getAttr());
             values.put("content", story.getContent());
+            db.insert("ZhihuNews" , null, values);
+        }
+    }
+    public void saveTopStory(TopStory story){
+        if (story != null){
+            ContentValues values = new ContentValues();
+            values.put("title", story.getTitle());
+            values.put("date", story.getDate());
+            values.put("img", story.getmyUrls());
+            values.put("id", story.getId());
+            values.put("attr",story.getAttr());
+            values.put("content", story.getContent());
+            db.insert("ZhihuNews" , null, values);
+        }
+    }
+    public void saveThemeStory(ThemeStory themeStory){
+        if (themeStory != null){
+            ContentValues values = new ContentValues();
+            values.put("title", themeStory.getTitle());
+            values.put("date", themeStory.getDate());
+            values.put("img", themeStory.getUrls());
+            values.put("id", themeStory.getId());
+            values.put("attr",themeStory.getAttr());
+            values.put("content", themeStory.getContent());
+            values.put("categoryID",themeStory.getCategoryID());
             db.insert("ZhihuNews" , null, values);
         }
     }

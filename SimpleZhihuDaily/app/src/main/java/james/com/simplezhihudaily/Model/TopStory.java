@@ -2,62 +2,83 @@ package james.com.simplezhihudaily.Model;
 
 import com.google.gson.annotations.SerializedName;
 
-public class TopStory {
-    @SerializedName("image")
-    private String img;
-    @SerializedName("id")
-    private String id;
-    @SerializedName("ga_prefix")
-    private String ga_prefix;
-    @SerializedName("title")
-    private String title;
-    private String date;
+public class TopStory extends BaseStory{
     final static private int isTopStory = 1;
-
-    public String getImg() {
-        return img;
+    /*
+    这里重写一下 因为发现Top-story是image 不是images
+     */
+    @SerializedName("image")
+    private String myUrls;
+    public TopStory(){}
+    public int getAttr(){
+        return isTopStory;
+    }
+    public String getUrls(){
+        return this.urls[0];
     }
 
-    public void setImg(String img) {
-        this.img = img;
+    public void setUrls(String s){
+        urls[0] = s;
+    }
+    public void setUrls(String[] s){
+        urls = new String[s.length];
+        urls = s;
+    }
+    public String getUrls(String all){
+        return urls[0];
+    }
+    public String getmyUrls() {
+        return this.myUrls;
+    }
+    public boolean isMultipic() {
+        return multipic;
     }
 
+    public void setMultipic(boolean mMultipic) {
+        multipic = mMultipic;
+    }
+
+
+    public void setmyUrls(String mmyUrls) {
+        this.myUrls = mmyUrls;
+    }
+
+    public int getType(){
+        return type;
+    }
+    public void setType(int mType){
+        type = mType;
+    }
     public String getDate() {
         return date;
     }
 
-    public void setDate(String date) {
-        this.date = date;
+    public void setDate(String mDate) {
+        date = mDate;
     }
 
-    public TopStory(String img, String id, String ga_prefix, String title) {
-        this.img = img;
-        this.id = id;
-        this.ga_prefix = ga_prefix;
-        this.title = title;
+    public TopStory(String img, int mId, int mGa_prefix, String mTitle) {
+        this.myUrls = img;
+        id = mId;
+        ga_prefix = mGa_prefix;
+        title = mTitle;
     }
 
-    public String getImgs() {
-        return img;
-    }
-    public void setImgs(String s){
-        this.img = s;
-    }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setId(int mId) {
+        id = mId;
     }
 
-    public String getGa_prefix() {
+    public int getGa_prefix() {
         return ga_prefix;
     }
 
-    public void setGa_prefix(String ga_prefix) {
-        this.ga_prefix = ga_prefix;
+    public void setGa_prefix(int mGa_prefix) {
+        ga_prefix = mGa_prefix;
     }
 
     public String getTitle() {
@@ -65,7 +86,11 @@ public class TopStory {
     }
 
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setTitle(String mTitle) {
+        title = mTitle;
+    }
+    @Override
+    public String toString() {
+        return "id: " + getId() + ",date: " + getDate() + ",title: " + getTitle() + ",this.myUrls: " + getmyUrls();
     }
 }

@@ -2,71 +2,91 @@ package james.com.simplezhihudaily.Model;
 
 import com.google.gson.annotations.SerializedName;
 
-public class ThemeStory {
+public class ThemeStory extends BaseStory{
     final static private int isThemeStory = 2;
-    @SerializedName("image")
-    private String img;
-    @SerializedName("id")
-    private String id;
-    @SerializedName("ga_prefix")
-    private String ga_prefix;
-    @SerializedName("title")
-    private String title;
-    private String date;
-    private String themeID;
+    private String categoryID;
 
-    public String getThemeID() {
-        return themeID;
+    public String getCategoryID() {
+        return this.categoryID;
     }
 
-    public void setThemeID(String themeID) {
-        this.themeID = themeID;
+    public int getType(){
+        return type;
+    }
+    public void setType(int mType){
+        type = mType;
     }
 
-    public String getImg() {
-        return img;
+    public boolean isMultipic() {
+        return multipic;
     }
 
-    public void setImg(String img) {
-        this.img = img;
+    public void setMultipic(boolean mMultipic) {
+        multipic = mMultipic;
+    }
+    public void setCategoryID(String mCategoryID) {
+        categoryID = mCategoryID;
+    }
+
+    public String getUrls() {
+        return urls[0];
+    }
+
+    public String getUrls(String  all){
+        String combined = null;
+        if (urls == null)
+        {
+            return null;
+        }
+        for (int i = 0; i < urls.length; i++)
+        {
+            combined += urls[i];
+            combined += ",";
+        }
+        return combined;
+    }
+
+    public void setUrls(String mUrls) {
+        urls = new String[1];
+        urls[0] = mUrls;
+    }
+
+    public void setUrls(String[] mUrls){
+        urls = new String[mUrls.length];
+        urls = mUrls;
     }
 
     public String getDate() {
         return date;
     }
 
-    public void setDate(String date) {
-        this.date = date;
+    public void setDate(String mDate) {
+        date = mDate;
     }
 
-    public ThemeStory(String img, String id, String ga_prefix, String title) {
-        this.img = img;
-        this.id = id;
-        this.ga_prefix = ga_prefix;
-        this.title = title;
+    public ThemeStory(String mImg, int mId, int mGa_prefix, String mTitle) {
+        urls[0] = mImg;
+        id = mId;
+        ga_prefix = mGa_prefix;
+        title = mTitle;
     }
 
-    public String getImgs() {
-        return img;
-    }
-    public void setImgs(String s){
-        this.img = s;
-    }
 
-    public String getId() {
+
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setId(int mId) {
+        id = mId;
     }
 
-    public String getGa_prefix() {
+    public int getGa_prefix() {
         return ga_prefix;
     }
 
-    public void setGa_prefix(String ga_prefix) {
-        this.ga_prefix = ga_prefix;
+    public void setGa_prefix(int mGa_prefix) {
+        ga_prefix = mGa_prefix;
     }
 
     public String getTitle() {
@@ -74,8 +94,8 @@ public class ThemeStory {
     }
 
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setTitle(String mTitle) {
+        title = mTitle;
     }
     public int getAttr(){
         return isThemeStory;
