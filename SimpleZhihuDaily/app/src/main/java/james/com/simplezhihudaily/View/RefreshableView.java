@@ -400,7 +400,6 @@ public class RefreshableView extends LinearLayout implements View.OnTouchListene
     /**
      * 正在刷新的任务，在此任务中会去回调注册进来的下拉刷新监听器。
      *
-     * @author guolin
      */
     class RefreshingTask extends AsyncTask<Void, Integer, Void> {
 
@@ -436,7 +435,6 @@ public class RefreshableView extends LinearLayout implements View.OnTouchListene
     /**
      * 隐藏下拉头的任务，当未进行下拉刷新或下拉刷新完成后，此任务将会使下拉头重新隐藏。
      *
-     * @author guolin
      */
     class HideHeaderTask extends AsyncTask<Void, Integer, Integer> {
 
@@ -486,7 +484,6 @@ public class RefreshableView extends LinearLayout implements View.OnTouchListene
     /**
      * 下拉刷新的监听器，使用下拉刷新的地方应该注册此监听器来获取刷新回调。
      *
-     * @author guolin
      */
     public interface PullToRefreshListener {
 

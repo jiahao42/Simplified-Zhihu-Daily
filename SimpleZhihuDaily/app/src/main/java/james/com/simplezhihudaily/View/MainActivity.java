@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Bundle;
@@ -47,7 +48,7 @@ import james.com.simplezhihudaily.R;
 import james.com.simplezhihudaily.Util.Util;
 import james.com.simplezhihudaily.db.ZhihuDailyDB;
 
-import static android.R.attr.top;
+import static android.R.id.message;
 
 /**
  * TODO
@@ -66,7 +67,8 @@ public class MainActivity extends Activity {
     private RequestQueue mQueue;
     private MainActivity mainActivity = this;
     private Gson gson = new Gson();
-    private String[] picUrls;
+    private String[] storyPicUrls;
+    private String[] topStoryPicUrls;
     private NewsAdapter adapter;
     private ZhihuDailyDB zhihuDailyDB;
     private TextView bottom;
@@ -78,11 +80,9 @@ public class MainActivity extends Activity {
     private TextView titleDate;
     private DateControl dateControl;
     private TextView titleText;
-    private Button button1;
-    private Button button2;
-    private Button button3;
-    private Button button4;
-    private Button button5;
+    private Button[] topImage;
+    private boolean getTopStoryFlag = true;
+    private static final int numberOfTopStories = 5;
 
 
     private boolean mIsShowTitle = false;
@@ -106,17 +106,28 @@ public class MainActivity extends Activity {
         public void handleMessage(Message message) {
             if (message.what == Symbol.RECEIVE_SUCCESS)
             {
-                picUrls = new String[newsList.size()];
+                storyPicUrls = new String[newsList.size()];
                 Resources res = getResources();
                 Bitmap bitmap = BitmapFactory.decodeResource(res, R.drawable.error);
+                /**
+                 * 下面得到Story的Url
+                 */
                 for (int i = 0; i < newsList.size(); i++)
                 {
                     Log.d("TAG", newsList.get(i).getUrls());
-                    picUrls[i] = newsList.get(i).getUrls();
+                    storyPicUrls[i] = newsList.get(i).getUrls();
                     newsList.get(i).setBitmap(bitmap);
                     adapter.notifyDataSetChanged();//将notify放进了循环 如果网特别差 图片还可以一张张跳出来
                 }
-                getNewsPics();
+                getStoryPics();
+                /**
+                 * 下面得到topStory的Urls
+                 */
+                topStoryPicUrls = new String[numberOfTopStories];
+                for (int i = 0; i < numberOfTopStories; i++){
+                    topStoryPicUrls[i] = topStories[i].getmyUrls();
+                }
+                getTopStoryPics();
             }
         }
     };
@@ -141,34 +152,59 @@ public class MainActivity extends Activity {
                         try
                         {
                             Log.d("TAG", response.getJSONArray("stories").toString());
-                            //获得所有日报的Json信息 注意是一个数组 将其转化成对象后 再通过bundle传递
+                            //获得所有日报的Json信息 注意是一个数组 将其转化成对象后 再通过bundle传递\
+                            /**
+                             * 获得日期是一个很重要的节点
+                             */
+                            String date = gson.fromJson(response.getString("date"), String.class);
                             /**
                              * 注意：
                              *      只有当日的新闻才会有"top_stories"这个json数组
                              *      所以 当请求往日的数据时 并不能得到顶端栏目的数据
                              *      只能通过数据库里现有的来读 如果读不到了 那么就保持原样即可
                              *      或者更偷懒的方法是：顶端栏目始终不变
+                             *
+                             *      以下都是处理topStory的代码
                              */
-                            Story[] story = gson.fromJson(response.getString("stories"), Story[].class);
-                            if (certainDate.equals("latest")){//若是请求最新数据才有"top_stories"
-                                topStories = gson.fromJson(response.getString("top_stories"),TopStory[].class);
-                            }
-                            for (int i = 0; i < topStories.length; i++){
-                                Log.d("test",topStories[i].toString());
-                            }
-                            String date = gson.fromJson(response.getString("date"), String.class);
                             if (certainDate.equals("latest")){
                                 titleDate.setText(Util.analyzeDate(String.valueOf(date)));
+                                //为了防止重复存储top_story的信息 在此先检查一下 并设置flag 已存在则不读
+                                if (zhihuDailyDB.topStoryInDB(date)){
+                                    topStories = zhihuDailyDB.loadTopStory(date);
+                                    for (int i = 0; i < numberOfTopStories; i++){
+                                        topImage[i].setText(topStories[i].getTitle());
+                                    }
+                                    getTopStoryFlag = false;
+                                }
                             }
+                            if (certainDate.equals("latest") && getTopStoryFlag){//若是请求最新数据才有"top_stories" 且要flag为true
+                                topStories = gson.fromJson(response.getString("top_stories"),TopStory[].class);
+                                for (int i = 0; i < numberOfTopStories; i++){
+                                    topImage[i].setText(topStories[i].getTitle());
+                                }
+                            }
+                            if (getTopStoryFlag){
+                                for (TopStory topStory : topStories)
+                                {
+                                    zhihuDailyDB.saveTopStory(topStory);
+                                }
+                                getTopStoryFlag = false;
+                            }
+
+
+                            /**
+                             *      下面都是处理Story的代码
+                             */
+                            Story[] story = gson.fromJson(response.getString("stories"), Story[].class);
                             for (int i = 0; i < story.length; i++)
                             {
-                                if (certainDate.equals("latest") && i < 5){//每天固定五张图 就硬编码了
+                                if (certainDate.equals("latest") && i < numberOfTopStories && getTopStoryFlag){//每天固定五张图 就硬编码了
                                     topStories[i].setDate(date);
                                 }
                                 story[i].setDate(date);
                                 Log.d("newsInfo", story[i].getTitle());
                             }
-                            /*
+                            /**
                             实例化控制日期的单件
                              */
                             dateControl = DateControl.getInstance(Integer.parseInt(date));
@@ -192,11 +228,7 @@ public class MainActivity extends Activity {
                             for (int i = 0; i < count; i++)
                             {
                                 Log.d("TAG", "saving..." + i);
-                                zhihuDailyDB.saveBaseStory(story[i]);//注意新来的新闻在头部
-                            }
-                            for (TopStory topStory : topStories)
-                            {
-                                zhihuDailyDB.saveTopStory(topStory);
+                                zhihuDailyDB.saveStory(story[i]);//注意新来的新闻在头部
                             }
                             /*
                             此处得到了所有的带有基本信息的对象集合
@@ -227,8 +259,8 @@ public class MainActivity extends Activity {
     }
 
     //获取新闻图片
-    private void getNewsPics() {
-        final Handler get_pics_handler = new Handler() {
+    private void getStoryPics() {
+        final Handler getStoryPics = new Handler() {
             @Override
             public void handleMessage(Message message) {
                 if (message.what == Symbol.RECEIVE_SUCCESS)
@@ -240,10 +272,10 @@ public class MainActivity extends Activity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                for (int i = 0; i < picUrls.length; i++)
+                for (int i = 0; i < storyPicUrls.length; i++)
                 {
                     final int count = i;
-                    ImageRequest imageRequest = new ImageRequest(picUrls[count], new Response.Listener<Bitmap>() {
+                    ImageRequest imageRequest = new ImageRequest(storyPicUrls[count], new Response.Listener<Bitmap>() {
                         @Override
                         public void onResponse(Bitmap response) {
                             newsList.get(count).setBitmap(response);
@@ -252,8 +284,35 @@ public class MainActivity extends Activity {
                             bundle.putInt("count", count);
                             message.setData(bundle);
                             message.what = Symbol.RECEIVE_SUCCESS;
-                            get_pics_handler.sendMessage(message);
+                            getStoryPics.sendMessage(message);
                             //Log.d("imageRequest", "received" + count);
+                        }
+                    }, 0, 0, ImageView.ScaleType.CENTER, Bitmap.Config.RGB_565, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Log.d("getPics", "server_error");
+                        }
+                    });
+                    mQueue.add(imageRequest);
+                    //Log.d("imageRequest", "added" + count);
+                }
+                mQueue.start();
+            }
+        }).start();
+    }
+
+    private void getTopStoryPics(){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < numberOfTopStories; i++)
+                {
+                    final int count = i;
+                    ImageRequest imageRequest = new ImageRequest(topStoryPicUrls[count], new Response.Listener<Bitmap>() {
+                        @Override
+                        public void onResponse(Bitmap response) {
+                            BitmapDrawable bdrawable = new BitmapDrawable(mainActivity.getResources(),response);
+                            topImage[count].setBackground(bdrawable);
                         }
                     }, 0, 0, ImageView.ScaleType.CENTER, Bitmap.Config.RGB_565, new Response.ErrorListener() {
                         @Override
@@ -276,11 +335,12 @@ public class MainActivity extends Activity {
         afterTheDay = (ImageView) findViewById(R.id.arrow_right);
         titleDate = (TextView) findViewById(R.id.title_date);
         titleText = (TextView) findViewById(R.id.title);
-        button1 = (Button)findViewById(R.id.btn1);
-        button2 = (Button)findViewById(R.id.btn2);
-        button3 = (Button)findViewById(R.id.btn3);
-        button4 = (Button)findViewById(R.id.btn4);
-        button5 = (Button)findViewById(R.id.btn5);
+        topImage = new Button[numberOfTopStories];
+        topImage[0] = (Button)findViewById(R.id.btn1);
+        topImage[1] = (Button)findViewById(R.id.btn2);
+        topImage[2] = (Button)findViewById(R.id.btn3);
+        topImage[3] = (Button)findViewById(R.id.btn4);
+        topImage[4] = (Button)findViewById(R.id.btn5);
         titleText.bringToFront();
         initListener();
         //topBar = (RelativeLayout) findViewById(R.id.top_bar);
@@ -383,6 +443,9 @@ public class MainActivity extends Activity {
                         adapter = new NewsAdapter(MainActivity.this, R.layout.news_item, newsList);
                         newsList.clear();
                         newsList.addAll(zhihuDailyDB.loadStory(String.valueOf(dateControl.getCursor())));
+                        for (int i = 0;i < newsList.size();i++){
+                            Log.d("whatsWrong",newsList.get(i).toString());
+                        }
                         listView.setAdapter (adapter);
                     /*
                     从数据库中取出来的对象 只有配图的url 而没有配图的图片 所以得去服务器请求
@@ -402,17 +465,17 @@ public class MainActivity extends Activity {
         });
     }
     private void getPicFromNet(){
-        picUrls = new String[newsList.size()];
+        storyPicUrls = new String[newsList.size()];
         Resources res = getResources();
         Bitmap bitmap = BitmapFactory.decodeResource(res, R.drawable.error);
         for (int i = 0; i < newsList.size(); i++)
         {
             Log.d("TAG", newsList.get(i).getUrls());
-            picUrls[i] = newsList.get(i).getUrls();
+            storyPicUrls[i] = newsList.get(i).getUrls();
             newsList.get(i).setBitmap(bitmap);
             adapter.notifyDataSetChanged();//将notify放进了循环 如果网特别差 图片还可以一张张跳出来
         }
-        getNewsPics();
+        getStoryPics();
     }
 
     /**

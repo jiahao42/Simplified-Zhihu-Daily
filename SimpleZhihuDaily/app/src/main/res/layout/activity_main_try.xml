@@ -54,7 +54,14 @@
     <james.com.simplezhihudaily.View.SlidingSwitcherView
         android:id="@+id/slidingLayout"
         android:layout_width="fill_parent"
-        android:layout_height="100dip" >
+        android:layout_height="240dip" >
+        <!--<TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:text="See you on the dark side of the moon"
+            android:textSize="15sp"/>
+            -->
 
         <LinearLayout
             android:layout_width="fill_parent"
@@ -62,33 +69,53 @@
             android:orientation="horizontal" >
 
             <Button
+                android:textStyle="bold"
+                android:textColor="#ffffff"
+                android:textSize="20sp"
+                android:text="See you on the Dark side of the Moon"
                 android:id="@+id/btn1"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:background="@drawable/arrow" />
+                android:background="@drawable/error" />
 
             <Button
+                android:textStyle="bold"
+                android:textColor="#ffffff"
+                android:textSize="20sp"
+                android:text="See you on the Dark side of the Moon"
                 android:id="@+id/btn2"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:background="@drawable/arrow_left" />
+                android:background="@drawable/error" />
 
             <Button
+                android:textStyle="bold"
+                android:textColor="#ffffff"
+                android:textSize="20sp"
+                android:text="See you on the Dark side of the Moon"
                 android:id="@+id/btn3"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:background="@drawable/arrow_right" />
+                android:background="@drawable/error" />
 
             <Button
+                android:textStyle="bold"
+                android:textColor="#ffffff"
+                android:textSize="20sp"
+                android:text="See you on the Dark side of the Moon"
                 android:id="@+id/btn4"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:background="@drawable/arrow" />
+                android:background="@drawable/error" />
             <Button
+                android:textColor="#ffffff"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:text="See you on the Dark side of the Moon"
                 android:id="@+id/btn5"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:background="@drawable/arrow" />
+                android:background="@drawable/error" />
         </LinearLayout>
 
         <LinearLayout
