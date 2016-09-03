@@ -10,7 +10,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -22,10 +21,8 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import james.com.simplezhihudaily.Model.DeviceInfo;
 import james.com.simplezhihudaily.Model.Symbol;
 import james.com.simplezhihudaily.R;
-import james.com.simplezhihudaily.Util.Util;
 
 
 public class SplashActivity extends Activity {
@@ -38,7 +35,7 @@ public class SplashActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.splash_activity);
+        setContentView(R.layout.layout_splash);
         splash_img = (ImageView) findViewById(R.id.splash_img);
         progressBar = (ProgressBar)findViewById(R.id.progress);
         mQueue = Volley.newRequestQueue(splashActivity);

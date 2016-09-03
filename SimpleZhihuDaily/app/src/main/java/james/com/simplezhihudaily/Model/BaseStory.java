@@ -4,21 +4,21 @@ import com.google.gson.annotations.SerializedName;
 
 public abstract class BaseStory {
     @SerializedName("images")
-    protected String[] urls;
+    String[] urls;
     @SerializedName("type")
-    protected int type;
+    int type;
     @SerializedName("id")
     protected int id;
     @SerializedName("ga_prefix")
-    protected int ga_prefix;
+    int ga_prefix;
     @SerializedName("title")
     protected String title;
     @SerializedName("multipic")
-    protected boolean multipic;
+    boolean multipic;
     @SerializedName("date")
-    protected String date;
+    String date;
     @SerializedName("content")
-    protected String content;
+    String content;
 
     public String getContent() {
         return content;

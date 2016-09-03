@@ -5,4 +5,5 @@
     <dimen name="top_bar_mainActivity">50dp</dimen>
     <dimen name="slidingSwitcherView">240dp</dimen>
     <dimen name="listView">290dp</dimen>
+    <dimen name="setting_text">18sp</dimen>
 </resources>

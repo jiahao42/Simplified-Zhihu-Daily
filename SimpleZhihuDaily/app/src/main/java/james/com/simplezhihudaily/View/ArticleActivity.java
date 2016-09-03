@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -44,7 +43,7 @@ public class ArticleActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_article);
+        setContentView(R.layout.layout_article);
         initWidget();
         get_article();
     }
@@ -154,5 +153,38 @@ public class ArticleActivity extends Activity {
             }
         }
         article.loadDataWithBaseURL("file:///android_asset/.",document.toString(),"text/html; charset=UTF-8", null,null);
+    }
+
+    /**
+     *      ***** 知乎文章的额外信息分析 *****
+     *      额外信息包括：
+     *      1.赞数
+     *      2.长评论总数
+     *      3.短评论总数
+     *      4.评论总数 = 长评论总数 + 短评论总数
+     *
+     *      ***** 长评论内容 *****
+     *      ***** 短评论内容 *****
+     *      comments : 长评论列表，形式为数组（请注意，其长度可能为 0）
+     *      author : 评论作者
+     *      id : 评论者的唯一标识符
+     *      content : 评论的内容
+     *      likes : 评论所获『赞』的数量
+     *      time : 评论时间
+     *      avatar : 用户头像图片的地址
+     *
+     */
+
+    // TODO: 2016/9/3 必须弄清楚handler处理数据会不会影响主线程 不然就不适合在handler中放太多方法
+    /**
+     * 我要写一个通用的处理网络请求的类（这样好吗？）
+     * 直接返回一个response
+     * 所有处理的逻辑都交给Handler来处理
+     *
+     * @param Url   请求的网址
+     * @param signature    请求的内容
+     */
+    private void processRequest(String Url,String signature){
+
     }
 }

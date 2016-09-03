@@ -2,7 +2,6 @@ package james.com.simplezhihudaily.View;
 
 import android.animation.ObjectAnimator;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -14,11 +13,8 @@ import android.os.Message;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -41,7 +37,6 @@ import com.google.gson.Gson;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -58,27 +53,28 @@ import james.com.simplezhihudaily.R;
 import james.com.simplezhihudaily.Util.Util;
 import james.com.simplezhihudaily.db.ZhihuDailyDB;
 
-import static android.R.id.message;
-import static android.os.Build.VERSION_CODES.M;
-import static james.com.simplezhihudaily.R.dimen.listView;
 import static james.com.simplezhihudaily.R.drawable.error;
 
 /**
  * TODO
- * 1.默认从本地数据库读，设置下拉刷新，刷新后才调用之前写的方法
+ * 1.默认从本地数据库读，设置下拉刷新，刷新后才调用之前写的方法  **DONE**
  * 2.下滑时要隐藏标题栏
  * 3.要写点赞，评论菜单，且单击后该菜单会出现或消失
- * 4.分栏目，点击显示下拉列表，可以获取每个栏目的信息
+ * 4.分栏目，点击显示下拉列表，可以获取每个栏目的信息   **DONE**
  * 5.不显眼的注册登录功能，连接后台
  * 6.写设置界面，比如可以选择3G情况下不自动加载图片等
+ * 7.要做推送消息功能（总之要实践Service和Broadcast!!!)
+ * 8.分享功能
  */
+
+// TODO: 2016/9/3 还没有给TopStory添加链接 无法通过它进入文章
 
 
 public class MainActivity extends Activity implements AdapterView.OnItemSelectedListener {
     private List<Story> newsList = new ArrayList<>();
     private TopStory[] topStories;
     private RequestQueue mQueue;
-    private MainActivity mainActivity = this;
+    public static  MainActivity mainActivity;
     private Gson gson = new Gson();
     private String[] storyPicUrls;
     private String[] topStoryPicUrls;
@@ -98,7 +94,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
     private boolean getTopStoryFlag = true;
     private static final int numberOfTopStories = 5;
     private float deviceHeight;
-    private Spinner spinner;
+    public Spinner spinner;
     private Theme[] themes;
     private List<String> spinnerList;
     private SharedPreferences sharedPreferences;
@@ -114,7 +110,8 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main_try);
+        setContentView(R.layout.layout_main);
+        mainActivity = this;
         initWidget();
         //doLogic();
         getNewsUrl("latest");
@@ -276,7 +273,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                             /*
                             此处得到了所有的带有基本信息的对象集合
                              */
-                            adapter = new StoryAdapter(MainActivity.this, R.layout.news_item, newsList);
+                            adapter = new StoryAdapter(MainActivity.this, R.layout.story_item, newsList);
                             newsList.clear();
                             Collections.addAll(newsList, story);
                             listView.setAdapter(adapter);
@@ -412,6 +409,9 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                 case "今日热闻":
                     Toast.makeText(this,"已经在今日热闻了",Toast.LENGTH_SHORT).show();
                     break;
+                case "我的设置":
+                    Intent intent = new Intent(mainActivity,SettingActivity.class);
+                    startActivity(intent);
                 default:
                     Toast.makeText(this, "你选中的是" + itemString, Toast.LENGTH_SHORT)
                             .show();
@@ -419,6 +419,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
             }
         }
     }
+
 
     @Override
     public void onNothingSelected(AdapterView<?> arg0) {
@@ -543,7 +544,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
         topImage[4] = (Button) findViewById(R.id.btn5);
         titleText.bringToFront();
         zhihuDailyDB = ZhihuDailyDB.getInstance(mainActivity);
-        adapter = new StoryAdapter(MainActivity.this, R.layout.news_item, newsList);
+        adapter = new StoryAdapter(MainActivity.this, R.layout.story_item, newsList);
         listView.setAdapter(adapter);
         setListViewListener();
         initDateListener();
@@ -596,7 +597,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                     newsList = new ArrayList<NewsInfo>();
                     不能使用上述方法 因为这样的话等于重新建立了一个对象 该对象并不是观察者
                      */
-                    adapter = new StoryAdapter(MainActivity.this, R.layout.news_item, newsList);
+                    adapter = new StoryAdapter(MainActivity.this, R.layout.story_item, newsList);
                     newsList.clear();
                     newsList.addAll(zhihuDailyDB.loadStory(String.valueOf(dateControl.getCursor())));
                     listView.setAdapter(adapter);
@@ -633,7 +634,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                      */
                         // ... Modify adapter ... do anything else you need to do
                         // To clear the recycled views list :
-                        adapter = new StoryAdapter(MainActivity.this, R.layout.news_item, newsList);
+                        adapter = new StoryAdapter(MainActivity.this, R.layout.story_item, newsList);
                         newsList.clear();
                         newsList.addAll(zhihuDailyDB.loadStory(String.valueOf(dateControl.getCursor())));
                         for (int i = 0; i < newsList.size(); i++)
