@@ -48,6 +48,10 @@ public class ArticleActivity extends Activity {
         initWidget();
         get_article();
     }
+
+    /**
+     * 发起网络请求 得到文章内容html 然后再进行图片大小处理使之适配屏幕大小
+     */
     private void get_article(){
         final Handler handler = new Handler(){
             @Override
@@ -108,6 +112,10 @@ public class ArticleActivity extends Activity {
 
         }).start();
     }
+
+    /**
+     * 初始化控件
+     */
     private void initWidget(){
         article = (WebView)findViewById(R.id.article);
         articleActivity = this;
@@ -131,6 +139,11 @@ public class ArticleActivity extends Activity {
         });
         zhihuDailyDB = ZhihuDailyDB.getInstance(articleActivity);
     }
+
+    /**
+     * 将html中可能过大的图片适应屏幕
+     * 此方法根据观察知乎API得到 不具有适用性
+     */
     private void zoomPicture(){
         document = Jsoup.parse(htmlString);
         Elements imgs = document.getElementsByTag("img");

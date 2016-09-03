@@ -63,6 +63,9 @@ public class SplashActivity extends Activity {
                 }
             }
         };
+        /**
+         * 请求最新开机图片的Url
+         */
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -96,6 +99,11 @@ public class SplashActivity extends Activity {
             }
         }).start();
     }
+
+    /**
+     * 根据得到的Url来请求图片
+     * @param url   url
+     */
     private void getPicture(final String url){
         new Thread(new Runnable() {
             @Override

@@ -47,7 +47,10 @@ public class ZhihuDailyDB {
         return zhihuDailyDB;
     }
 
-    //preserve instances to db
+    /**
+     * 一次存一个Story对象进数据库
+     * @param story
+     */
     public void saveStory(Story story) {
         if (story != null)
         {
@@ -62,20 +65,28 @@ public class ZhihuDailyDB {
         }
     }
 
-    public void saveTopStory(TopStory story) {
-        if (story != null)
+    /**
+     * 将一个topStory存到数据库
+     * @param topStory
+     */
+    public void saveTopStory(TopStory topStory) {
+        if (topStory != null)
         {
             ContentValues values = new ContentValues();
-            values.put("title", story.getTitle());
-            values.put("date", story.getDate());
-            values.put("img", story.getmyUrls());
-            values.put("id", story.getId());
-            values.put("attr", story.getAttr());
-            values.put("content", story.getContent());
+            values.put("title", topStory.getTitle());
+            values.put("date", topStory.getDate());
+            values.put("img", topStory.getmyUrls());
+            values.put("id", topStory.getId());
+            values.put("attr", topStory.getAttr());
+            values.put("content", topStory.getContent());
             db.insert("ZhihuNews", null, values);
         }
     }
 
+    /**
+     * 将一个themeStory存到数据库
+     * @param themeStory
+     */
     public void saveThemeStory(ThemeStory themeStory) {
         if (themeStory != null)
         {
@@ -158,6 +169,11 @@ public class ZhihuDailyDB {
         }
     }
 
+    /**
+     * 从数据库中取出所有topStory对象
+     * @param date  日期
+     * @return  对象的集合
+     */
     public TopStory[] loadTopStory(String date){
         Cursor cursor = db.query(ZhihuDailyDBhelper.TABLE_NAME,
                 null,"date = ? AND attr = ?",new String[]{date,String.valueOf(Symbol.TopStory)},
@@ -220,6 +236,11 @@ public class ZhihuDailyDB {
         }
     }
 
+    /**
+     * 查看数据库中是否有特定日期的数据
+     * @param certainDate   日期
+     * @return  boolean
+     */
     public boolean hasTheDate(String certainDate) {
         Cursor cursor = db.query(ZhihuDailyDBhelper.TABLE_NAME, null, "date = ?",
                 new String[]{certainDate}, null, null, null, null);

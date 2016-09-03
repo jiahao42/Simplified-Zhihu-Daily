@@ -54,15 +54,7 @@
     <james.com.simplezhihudaily.View.SlidingSwitcherView
         android:id="@+id/slidingLayout"
         android:layout_width="fill_parent"
-        android:layout_height="240dip" >
-        <!--<TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
-            android:text="See you on the dark side of the moon"
-            android:textSize="15sp"/>
-            -->
-
+        android:layout_height="240dp" >
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
@@ -138,15 +130,13 @@
             android:layout_height="match_parent" >
         </ListView>
     </james.com.simplezhihudaily.View.RefreshableView>
-    <!--
     <TextView
         android:id="@+id/bottom"
         android:layout_width="match_parent"
-        android:layout_height="30sp"
+        android:layout_height="25sp"
         android:text="没有更多了"
-        android:textSize="20sp"
+        android:textSize="15sp"
         android:gravity="center"
         android:textColor="#211c1c"/>
-        -->
 
 </LinearLayout>
