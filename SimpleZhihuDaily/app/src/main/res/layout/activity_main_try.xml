@@ -17,16 +17,17 @@
             android:layout_height="30dp"
             android:layout_marginTop="5sp"
             android:gravity="center_horizontal"
-            android:text="今日热闻"
+            android:text=""
             android:textColor="#000000"
             android:textSize="20sp"
             android:id="@+id/title"/>
-        <ImageView
-            android:layout_width="match_parent"
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:layout_marginTop="10dp"
-            android:src="@drawable/arrow_down"/>
+            android:layout_centerInParent="true"
+            android:scrollbarSize="20sp"
+            android:layout_marginTop="10dp"/>
         <TextView
             android:id="@+id/title_date"
             android:layout_width="match_parent"

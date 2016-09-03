@@ -4,6 +4,7 @@ import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -14,6 +15,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +26,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,22 +41,27 @@ import com.google.gson.Gson;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import james.com.simplezhihudaily.Model.DateControl;
 import james.com.simplezhihudaily.Model.DeviceInfo;
-import james.com.simplezhihudaily.Model.StoryAdapter;
 import james.com.simplezhihudaily.Model.Story;
+import james.com.simplezhihudaily.Model.StoryAdapter;
 import james.com.simplezhihudaily.Model.Symbol;
+import james.com.simplezhihudaily.Model.Theme;
 import james.com.simplezhihudaily.Model.TopStory;
 import james.com.simplezhihudaily.Model.Url;
 import james.com.simplezhihudaily.R;
 import james.com.simplezhihudaily.Util.Util;
 import james.com.simplezhihudaily.db.ZhihuDailyDB;
 
+import static android.R.id.message;
+import static android.os.Build.VERSION_CODES.M;
 import static james.com.simplezhihudaily.R.dimen.listView;
+import static james.com.simplezhihudaily.R.drawable.error;
 
 /**
  * TODO
@@ -66,7 +74,7 @@ import static james.com.simplezhihudaily.R.dimen.listView;
  */
 
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements AdapterView.OnItemSelectedListener {
     private List<Story> newsList = new ArrayList<>();
     private TopStory[] topStories;
     private RequestQueue mQueue;
@@ -90,6 +98,11 @@ public class MainActivity extends Activity {
     private boolean getTopStoryFlag = true;
     private static final int numberOfTopStories = 5;
     private float deviceHeight;
+    private Spinner spinner;
+    private Theme[] themes;
+    private List<String> spinnerList;
+    private SharedPreferences sharedPreferences;
+    private SharedPreferences.Editor editor;
 
 
     private boolean mIsShowTitle = false;
@@ -114,7 +127,7 @@ public class MainActivity extends Activity {
             {
                 storyPicUrls = new String[newsList.size()];
                 Resources res = getResources();
-                Bitmap bitmap = BitmapFactory.decodeResource(res, R.drawable.error);
+                Bitmap bitmap = BitmapFactory.decodeResource(res, error);
                 /**
                  * 下面得到Story的Url
                  */
@@ -125,6 +138,9 @@ public class MainActivity extends Activity {
                     newsList.get(i).setBitmap(bitmap);
                     adapter.notifyDataSetChanged();//将notify放进了循环 如果网特别差 图片还可以一张张跳出来
                 }
+                /**
+                 * 根据Url去请求Story的配图
+                 */
                 getStoryPics();
                 /**
                  * 下面得到topStory的Urls
@@ -134,6 +150,9 @@ public class MainActivity extends Activity {
                 {
                     topStoryPicUrls[i] = topStories[i].getmyUrls();
                 }
+                /**
+                 * 根据Url去请求TopStory的配图
+                 */
                 getTopStoryPics();
             }
         }
@@ -257,7 +276,7 @@ public class MainActivity extends Activity {
                             /*
                             此处得到了所有的带有基本信息的对象集合
                              */
-                            adapter = new james.com.simplezhihudaily.Model.StoryAdapter(MainActivity.this, R.layout.news_item, newsList);
+                            adapter = new StoryAdapter(MainActivity.this, R.layout.news_item, newsList);
                             newsList.clear();
                             Collections.addAll(newsList, story);
                             listView.setAdapter(adapter);
@@ -280,6 +299,130 @@ public class MainActivity extends Activity {
                 mQueue.start();
             }
         }).start();
+    }
+
+    /**
+     * 获取栏目名称
+     *
+     * @return 栏目列表
+     */
+    private void getThemes() {
+        final Handler getThemeHandler = new Handler() {
+            @Override
+            public void handleMessage(Message message) {
+                spinnerList = new ArrayList<String>();
+                spinnerList.add("今日热闻");
+                spinnerList.add("登录/注册");
+                spinnerList.add("我的设置");
+                if (message.what == Symbol.RECEIVE_SUCCESS)
+                {
+                    for (Theme theme : themes)
+                    {
+                        spinnerList.add(theme.getName());
+                    }
+                } else
+                {//没请求到数据则直接到本地取
+                    int count = sharedPreferences.getInt("sum", 0);
+                    for (int i = 0; i < count; i++)
+                    {
+                        spinnerList.add(sharedPreferences.getString("name" + count, "error"));
+                    }
+                }
+                initSpinner();
+            }
+        };
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                mQueue = Volley.newRequestQueue(mainActivity);
+                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Url.getThemes, null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try
+                        {
+                            themes = gson.fromJson(response.getString("others"), Theme[].class);
+                            int count = 0;
+                            for (int i = 0; i < themes.length; i++)
+                            {
+                                editor.putInt("id" + count, themes[i].getId());
+                                editor.putString("description" + count, themes[i].getDescription());
+                                editor.putString("name" + count, themes[i].getName());
+                                editor.putString("img" + count, themes[i].getUrl());
+                                count++;
+                                editor.apply();
+                            }
+                            editor.putInt("sum", count);
+                            editor.apply();//把栏目总数给存了
+                            Message message = new Message();
+                            message.what = Symbol.RECEIVE_SUCCESS;
+                            getThemeHandler.sendMessage(message);
+                        } catch (JSONException e)
+                        {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("server-error", "getTheme");
+                        Message message = new Message();
+                        message.what = Symbol.RECEIVER_FAILED;
+                        getThemeHandler.sendMessage(message);
+                    }
+                });
+                mQueue.add(jsonObjectRequest);
+                mQueue.start();
+            }
+        }).start();
+    }
+
+    /*
+    初始化spinner
+     */
+    private void initSpinner() {
+        ArrayAdapter<String> stringArrayAdapter = new ArrayAdapter<String>(this,
+                R.layout.custom_spiner_text_item, spinnerList);
+        Log.d("Spinner", spinnerList.get(5));
+        stringArrayAdapter
+                .setDropDownViewResource(R.layout.custom_spinner_dropdown_item);
+        spinner.setAdapter(stringArrayAdapter);
+        if (spinner != null)
+        {
+            spinner.setOnItemSelectedListener(this);
+        }
+    }
+
+    /*
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+    */
+    @Override
+    public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2,
+                               long arg3)
+    {
+        if (arg0.getId() == R.id.spinner)
+        {
+            Log.d("Spinner", String.valueOf(arg0.getId()));
+            String itemString = spinner.getItemAtPosition(arg2).toString();
+            switch (itemString){
+                case "今日热闻":
+                    Toast.makeText(this,"已经在今日热闻了",Toast.LENGTH_SHORT).show();
+                    break;
+                default:
+                    Toast.makeText(this, "你选中的是" + itemString, Toast.LENGTH_SHORT)
+                            .show();
+                    break;
+            }
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> arg0) {
+
     }
 
     /**
@@ -357,6 +500,23 @@ public class MainActivity extends Activity {
         }).start();
     }
 
+    /**
+     * 此方法是为了获取往日的配图
+     */
+    private void getPicFromNet() {
+        storyPicUrls = new String[newsList.size()];
+        Resources res = getResources();
+        Bitmap bitmap = BitmapFactory.decodeResource(res, error);
+        for (int i = 0; i < newsList.size(); i++)
+        {
+            Log.d("TAG", newsList.get(i).getUrls());
+            storyPicUrls[i] = newsList.get(i).getUrls();
+            newsList.get(i).setBitmap(bitmap);
+            adapter.notifyDataSetChanged();//将notify放进了循环 如果网特别差 图片还可以一张张跳出来
+        }
+        getStoryPics();
+    }
+
 
     private void initWidget() {
         /**
@@ -369,7 +529,12 @@ public class MainActivity extends Activity {
         titleText = (TextView) findViewById(R.id.title);
         topBar = (RelativeLayout) findViewById(R.id.top_bar);
         bottom = (TextView) findViewById(R.id.bottom);
+        spinner = (Spinner) findViewById(R.id.spinner);
         slidingSwitcherView = (SlidingSwitcherView) findViewById(R.id.slidingLayout);
+        editor = getSharedPreferences("themes", MODE_PRIVATE).edit();
+        sharedPreferences = getSharedPreferences("themes", MODE_PRIVATE);
+
+
         topImage = new Button[numberOfTopStories];
         topImage[0] = (Button) findViewById(R.id.btn1);
         topImage[1] = (Button) findViewById(R.id.btn2);
@@ -382,6 +547,7 @@ public class MainActivity extends Activity {
         listView.setAdapter(adapter);
         setListViewListener();
         initDateListener();
+        getThemes();
 
         refreshableView = (RefreshableView) findViewById(R.id.refreshable_view);
         refreshableView.setOnRefreshListener(new RefreshableView.PullToRefreshListener() {
@@ -467,7 +633,7 @@ public class MainActivity extends Activity {
                      */
                         // ... Modify adapter ... do anything else you need to do
                         // To clear the recycled views list :
-                        adapter = new james.com.simplezhihudaily.Model.StoryAdapter(MainActivity.this, R.layout.news_item, newsList);
+                        adapter = new StoryAdapter(MainActivity.this, R.layout.news_item, newsList);
                         newsList.clear();
                         newsList.addAll(zhihuDailyDB.loadStory(String.valueOf(dateControl.getCursor())));
                         for (int i = 0; i < newsList.size(); i++)
@@ -491,23 +657,6 @@ public class MainActivity extends Activity {
 
             }
         });
-    }
-
-    /**
-     *
-     */
-    private void getPicFromNet() {
-        storyPicUrls = new String[newsList.size()];
-        Resources res = getResources();
-        Bitmap bitmap = BitmapFactory.decodeResource(res, R.drawable.error);
-        for (int i = 0; i < newsList.size(); i++)
-        {
-            Log.d("TAG", newsList.get(i).getUrls());
-            storyPicUrls[i] = newsList.get(i).getUrls();
-            newsList.get(i).setBitmap(bitmap);
-            adapter.notifyDataSetChanged();//将notify放进了循环 如果网特别差 图片还可以一张张跳出来
-        }
-        getStoryPics();
     }
 
     /**
@@ -594,7 +743,7 @@ public class MainActivity extends Activity {
              */
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                Log.d("onTouch","start");
+                Log.d("onTouch", "start");
                 switch (event.getAction())
                 {
                     case MotionEvent.ACTION_DOWN:
@@ -687,121 +836,6 @@ public class MainActivity extends Activity {
         deviceHeight = (float) deviceInfo.height / deviceInfo.density;
     }
 
-
-
-
-
-    private class StoryAdapter extends ArrayAdapter<Story> {
-        private int resourceID;
-        private View view;
-        private ViewHolder viewHolder;
-        private int length;
-        public StoryAdapter(Context context, int textViewResourceID, List<Story> objects){
-            super(context,textViewResourceID,objects);
-            length = objects.size();
-            resourceID = textViewResourceID;
-        }
-        public int getLength(){
-            return length;
-        }
-
-        /**
-         *
-         * @param position
-         * @param convertView   将之前加载好的布局进行缓存，以便之后可以重用
-         * @param parent
-         * @return
-         */
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent){
-            Story story = getItem(position);
-            if (convertView == null){//如果不为空则直接对convertView进行重用
-                view = LayoutInflater.from(getContext()).inflate(resourceID,null);
-                viewHolder = new ViewHolder();
-                viewHolder.title = (TextView)view.findViewById(R.id.title);
-                viewHolder.imageView = (ImageView) view.findViewById(R.id.title_image);
-                view.setTag(viewHolder);
-                view.setOnTouchListener(new View.OnTouchListener() {
-                    /*
-                通过给listview设置touch listener，
-                如果手是向下滑动的(Y比X移动距离大)且滑动距离足够大时，判断是向下反之亦然是向上。
-                event move过程会有多次回调，为了保证在一次dowm 向下滑动时，需要在down 时设置标志，
-                来保证一次down 向下滑动时只调用动画一次 做显示标题动作。
-                 */
-                    @Override
-                    public boolean onTouch(View v, MotionEvent event) {
-                        float lastX;
-                        float lastY;
-                        boolean isChange = false;
-                        Log.d("onTouch","start");
-                        switch (event.getAction())
-                        {
-                            case MotionEvent.ACTION_DOWN:
-                                lastX = event.getX();
-                                lastY = event.getY();
-                                isChange = false;
-                                break;
-                            case MotionEvent.ACTION_MOVE:
-                                float x = event.getX();
-                                float y = event.getY();
-                                float xGapDistance = Math.abs(x - lastX);//移动的距离
-                                float yGapDistance = Math.abs(y - lastY);
-                                boolean isDown = yGapDistance > 4;
-                                //没有显示标题时，且是向下的，就显示
-                                //boolean isShow = yGapDistance > 8 && xGapDistance < 8 && !mIsShowTitle && isDown;
-                                //boolean isHide = yGapDistance > 8 && xGapDistance < 8 && mIsShowTitle && !isDown;
-                                boolean isShow = !mIsShowTitle && isDown;
-                                boolean isHide = mIsShowTitle && !isDown;
-                                Log.d("onTouchShow", String.valueOf(isShow));
-                                Log.d("onTouchHide", String.valueOf(isHide));
-                                lastX = x;
-                                lastY = y;
-                                //一次down，只变化一次，防止一次滑动时抖动下，造成某一个的向下时,y比lastY小
-                                if (!isChange && mIsfirstVisible && isHide)
-                                {
-                                    // 显示此标题
-                                    showHideTitle(true, 500);
-                                    Log.d("onTouchInvokeTrue", "I'm in true");
-                                    isChange = true;
-                                }//显示标题时，且是向上的，就隐蔽
-                                else if (!isChange && mIsfirstVisible && isShow)
-                                {
-                                    // 隐蔽标题
-                                    showHideTitle(false, 500);
-                                    Log.d("onTouchInvokeFalse", "I'm in false");
-                                    isChange = true;
-                                }
-                                break;
-                            case MotionEvent.ACTION_UP:
-                                //if(!mIsTouchHandeled){
-                                int position = listView.pointToPosition((int) event.getX(), (int) event.getY());
-                                if (position != ListView.INVALID_POSITION)
-                                {
-                                    listView.performItemClick(listView.getChildAt(position - listView.getFirstVisiblePosition()), position, listView.getItemIdAtPosition(position));
-                                }
-                                break;
-
-                            default:
-                                break;
-                        }
-                        return false;
-                    }
-                });
-            }else {
-                view = convertView;
-                viewHolder = (ViewHolder)view.getTag();
-            }
-            viewHolder.title.setText(story.getTitle());
-            viewHolder.imageView.setImageBitmap(story.getBitmap());
-            return view;
-        }
-        private class ViewHolder
-        {
-            TextView title;
-            ImageView imageView;
-        }
-
-    }
 }
 
 
