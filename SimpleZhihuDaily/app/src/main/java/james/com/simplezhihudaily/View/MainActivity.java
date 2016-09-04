@@ -70,14 +70,14 @@ import static james.com.simplezhihudaily.R.drawable.error;
 // TODO: 2016/9/3 还没有给TopStory添加链接 无法通过它进入文章
 
 
-public class MainActivity extends Activity implements AdapterView.OnItemSelectedListener {
+public class MainActivity extends Activity implements AdapterView.OnItemSelectedListener ,View.OnClickListener{
     private List<Story> newsList = new ArrayList<>();
     private TopStory[] topStories;
+    private String[] storyPicUrls;
+    private String[] topStoryPicUrls;
     private RequestQueue mQueue;
     public static  MainActivity mainActivity;
     private Gson gson = new Gson();
-    private String[] storyPicUrls;
-    private String[] topStoryPicUrls;
     private StoryAdapter adapter;
     private ZhihuDailyDB zhihuDailyDB;
     private TextView bottom;
@@ -542,6 +542,9 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
         topImage[2] = (Button) findViewById(R.id.btn3);
         topImage[3] = (Button) findViewById(R.id.btn4);
         topImage[4] = (Button) findViewById(R.id.btn5);
+        for (int i = 0; i < numberOfTopStories; i++){
+            topImage[i].setOnClickListener(this);
+        }
         titleText.bringToFront();
         zhihuDailyDB = ZhihuDailyDB.getInstance(mainActivity);
         adapter = new StoryAdapter(MainActivity.this, R.layout.story_item, newsList);
@@ -570,6 +573,36 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
         }, 0);
     }
 
+    /**
+     * 为顶部滚动的图片注册点击事件
+     * @param v     链接的下标
+     */
+        public void onClick(View v){
+            switch (v.getId()){
+                case R.id.btn1:
+                    initTopLinks(0);
+                    break;
+                case R.id.btn2:
+                    initTopLinks(1);
+                    break;
+                case R.id.btn3:
+                    initTopLinks(2);
+                    break;
+                case R.id.btn4:
+                    initTopLinks(3);
+                    break;
+                case R.id.btn5:
+                    initTopLinks(4);
+                    break;
+            }
+        }
+    private void initTopLinks(int id){
+        Intent intent = new Intent(mainActivity,ArticleActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putString("id",String .valueOf(topStories[id].getId()));
+        intent.putExtra("id",bundle);
+        startActivity(intent);
+    }
     /**
      * 初始化查看前一天新闻与后一天新闻的监听器
      */
