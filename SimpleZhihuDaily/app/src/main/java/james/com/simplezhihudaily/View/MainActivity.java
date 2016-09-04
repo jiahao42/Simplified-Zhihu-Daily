@@ -301,7 +301,6 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
     /**
      * 获取栏目名称
      *
-     * @return 栏目列表
      */
     private void getThemes() {
         final Handler getThemeHandler = new Handler() {
@@ -596,6 +595,11 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                     break;
             }
         }
+
+    /**
+     * 注册topStory的点击事件
+     * @param id    传入文章的ID
+     */
     private void initTopLinks(int id){
         Intent intent = new Intent(mainActivity,ArticleActivity.class);
         Bundle bundle = new Bundle();

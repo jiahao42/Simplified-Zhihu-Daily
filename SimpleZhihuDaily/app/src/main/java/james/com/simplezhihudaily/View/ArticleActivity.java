@@ -9,12 +9,14 @@ import android.util.Log;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ImageView;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.gson.Gson;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,7 +25,9 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import james.com.simplezhihudaily.Model.StoryExtra;
 import james.com.simplezhihudaily.Model.Symbol;
+import james.com.simplezhihudaily.Model.Url;
 import james.com.simplezhihudaily.R;
 import james.com.simplezhihudaily.db.ZhihuDailyDB;
 
@@ -39,6 +43,11 @@ public class ArticleActivity extends Activity {
     private Document document;
     private ArticleActivity articleActivity;
     private ZhihuDailyDB zhihuDailyDB;
+    private StoryExtra storyExtra;
+    private Gson gson;
+    private ImageView comments;
+    private ImageView thumb;
+    private ImageView share;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +55,7 @@ public class ArticleActivity extends Activity {
         setContentView(R.layout.layout_article);
         initWidget();
         get_article();
+        getStoryExtra();
     }
 
     /**
@@ -117,8 +127,12 @@ public class ArticleActivity extends Activity {
      */
     private void initWidget(){
         article = (WebView)findViewById(R.id.article);
+        share = (ImageView)findViewById(R.id.share);
+        comments = (ImageView)findViewById(R.id.comments);
+        thumb = (ImageView)findViewById(R.id.thumb);
         articleActivity = this;
         mQueue = Volley.newRequestQueue(articleActivity);
+        gson = new Gson();
         intent = getIntent();
         Bundle bundle = intent.getBundleExtra("id");
         id = bundle.getString("id");
@@ -175,16 +189,36 @@ public class ArticleActivity extends Activity {
      *
      */
 
-    // TODO: 2016/9/3 必须弄清楚handler处理数据会不会影响主线程 不然就不适合在handler中放太多方法
-    /**
-     * 我要写一个通用的处理网络请求的类（这样好吗？）
-     * 直接返回一个response
-     * 所有处理的逻辑都交给Handler来处理
-     *
-     * @param Url   请求的网址
-     * @param signature    请求的内容
-     */
-    private void processRequest(String Url,String signature){
-
+    private void getStoryExtra(){
+        final Handler getStoryExtra = new Handler(){
+            @Override
+            public void handleMessage(Message message){
+                //好像不用做什么事啊 - -
+            }
+        };
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Url.getStoryExtra + id, null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        storyExtra = gson.fromJson(response.toString(), StoryExtra.class);
+                        Message message = new Message();
+                        message.what = Symbol.RECEIVE_SUCCESS;
+                        getStoryExtra.sendMessage(message);
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Message message = new Message();
+                        message.what = Symbol.RECEIVER_FAILED;
+                        getStoryExtra.sendMessage(message);
+                    }
+                });
+                mQueue.add(jsonObjectRequest);
+                mQueue.start();
+            }
+        }).start();
     }
+
 }

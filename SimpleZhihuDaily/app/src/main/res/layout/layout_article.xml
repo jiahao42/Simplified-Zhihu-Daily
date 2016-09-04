@@ -3,8 +3,34 @@
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
-    <WebView
+    <RelativeLayout
+        android:background="#6c75f1"
+        android:layout_width="match_parent"
+        android:layout_height="50dp">
+        <ImageView
+            android:layout_marginRight="20dp"
+            android:layout_toLeftOf="@+id/thumb"
+            android:id="@+id/share"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/share"/>
+        <ImageView
+            android:layout_marginRight="20dp"
+            android:id="@+id/thumb"
+            android:layout_toLeftOf="@+id/comments"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/thumb"/>
+        <ImageView
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="30dp"
+            android:id="@+id/comments"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/comments"/>
 
+    </RelativeLayout>
+    <WebView
         android:id="@+id/article"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
