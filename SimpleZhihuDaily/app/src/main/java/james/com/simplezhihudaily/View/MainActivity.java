@@ -2,6 +2,7 @@ package james.com.simplezhihudaily.View;
 
 import android.animation.ObjectAnimator;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -76,7 +77,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
     private String[] storyPicUrls;
     private String[] topStoryPicUrls;
     private RequestQueue mQueue;
-    public static  MainActivity mainActivity;
+    public static MainActivity mainActivity;
     private Gson gson = new Gson();
     private StoryAdapter adapter;
     private ZhihuDailyDB zhihuDailyDB;
@@ -95,7 +96,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
     private static final int numberOfTopStories = 5;
     private float deviceHeight;
     public Spinner spinner;
-    private Theme[] themes;
+    public static Theme[] themes;
     private List<String> spinnerList;
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
@@ -111,7 +112,6 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_main);
-        mainActivity = this;
         initWidget();
         //doLogic();
         getNewsUrl("latest");
@@ -404,19 +404,70 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
         {
             Log.d("Spinner", String.valueOf(arg0.getId()));
             String itemString = spinner.getItemAtPosition(arg2).toString();
+            Intent intent;
             switch (itemString){
                 case "今日热闻":
                     Toast.makeText(this,"已经在今日热闻了",Toast.LENGTH_SHORT).show();
                     break;
                 case "我的设置":
-                    Intent intent = new Intent(mainActivity,SettingActivity.class);
+                    intent = new Intent(mainActivity,SettingActivity.class);
                     startActivity(intent);
+                    break;
+                case "登录/注册":
+                    intent = new Intent(mainActivity,LoginActivity.class);
+                    startActivity(intent);
+                    break;
+                case "日常心理学":
+                    jumpToThemeArticle("日常心理学");
+                    break;
+                case "用户推荐日报":
+                    jumpToThemeArticle("用户推荐日报");
+                    break;
+                case "电影日报":
+                    jumpToThemeArticle("电影日报");
+                    break;
+                case "不许无聊":
+                    jumpToThemeArticle("不许无聊");
+                    break;
+                case "设计日报":
+                    jumpToThemeArticle("设计日报");
+                    break;
+                case "大公司日报":
+                    jumpToThemeArticle("大公司日报");
+                    break;
+                case "财经日报":
+                    jumpToThemeArticle("财经日报");
+                    break;
+                case "互联网安全":
+                    jumpToThemeArticle("互联网安全");
+                    break;
+                case "开始游戏":
+                    jumpToThemeArticle("开始游戏");
+                    break;
+                case "音乐日报":
+                    jumpToThemeArticle("音乐日报");
+                    break;
+                case "动漫日报":
+                    jumpToThemeArticle("动漫日报");
+                    break;
+                case "体育日报":
+                    jumpToThemeArticle("体育日报");
+                    break;
                 default:
                     Toast.makeText(this, "你选中的是" + itemString, Toast.LENGTH_SHORT)
                             .show();
                     break;
             }
         }
+    }
+    private void jumpToThemeArticle(String theme){
+        Bundle bundle;
+        Intent intent;
+        bundle = new Bundle();
+        bundle.putString("id",theme);
+        intent = new Intent(mainActivity,ThemeFrameActivity.class);
+        intent.putExtra("id",bundle);
+        startActivity(intent);
     }
 
 
@@ -522,6 +573,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
         /**
          * 初始化控件
          */
+        mainActivity = this;
         listView = (ListView) findViewById(R.id.title_list);
         beforeTheDay = (ImageView) findViewById(R.id.arrow_left);
         afterTheDay = (ImageView) findViewById(R.id.arrow_right);

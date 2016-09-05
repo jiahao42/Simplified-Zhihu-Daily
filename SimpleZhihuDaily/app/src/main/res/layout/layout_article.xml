@@ -7,27 +7,33 @@
         android:background="#6c75f1"
         android:layout_width="match_parent"
         android:layout_height="50dp">
-        <ImageView
+        <TextView
             android:layout_marginRight="20dp"
             android:layout_toLeftOf="@+id/thumb"
             android:id="@+id/share"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/share"/>
-        <ImageView
+            android:drawableLeft="@drawable/share"/>
+        <TextView
             android:layout_marginRight="20dp"
             android:id="@+id/thumb"
             android:layout_toLeftOf="@+id/comments"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/thumb"/>
-        <ImageView
+            android:gravity="center"
+            android:textSize="20sp"
+            android:text="..."
+            android:drawableLeft="@drawable/thumb"/>
+        <TextView
             android:layout_alignParentRight="true"
             android:layout_marginRight="30dp"
             android:id="@+id/comments"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/comments"/>
+            android:gravity="center"
+            android:textSize="20sp"
+            android:text="..."
+            android:drawableLeft="@drawable/comments"/>
 
     </RelativeLayout>
     <WebView

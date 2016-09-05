@@ -9,7 +9,7 @@ import android.util.Log;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -25,11 +25,16 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import james.com.simplezhihudaily.Model.StoryExtra;
 import james.com.simplezhihudaily.Model.Symbol;
 import james.com.simplezhihudaily.Model.Url;
 import james.com.simplezhihudaily.R;
 import james.com.simplezhihudaily.db.ZhihuDailyDB;
+
+import static android.media.CamcorderProfile.get;
 
 
 public class ArticleActivity extends Activity {
@@ -45,9 +50,9 @@ public class ArticleActivity extends Activity {
     private ZhihuDailyDB zhihuDailyDB;
     private StoryExtra storyExtra;
     private Gson gson;
-    private ImageView comments;
-    private ImageView thumb;
-    private ImageView share;
+    private TextView comments;
+    private TextView thumb;
+    private TextView share;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,10 +131,11 @@ public class ArticleActivity extends Activity {
      * 初始化控件
      */
     private void initWidget(){
+
         article = (WebView)findViewById(R.id.article);
-        share = (ImageView)findViewById(R.id.share);
-        comments = (ImageView)findViewById(R.id.comments);
-        thumb = (ImageView)findViewById(R.id.thumb);
+        share = (TextView)findViewById(R.id.share);
+        comments = (TextView)findViewById(R.id.comments);
+        thumb = (TextView)findViewById(R.id.thumb);
         articleActivity = this;
         mQueue = Volley.newRequestQueue(articleActivity);
         gson = new Gson();
@@ -193,7 +199,14 @@ public class ArticleActivity extends Activity {
         final Handler getStoryExtra = new Handler(){
             @Override
             public void handleMessage(Message message){
-                //好像不用做什么事啊 - -
+                if (message.what == Symbol.RECEIVE_SUCCESS){
+                    thumb.setText(String.valueOf(storyExtra.getPopularity()));
+                    comments.setText(String.valueOf(storyExtra.getSumOfComment()));
+                }else if (message.what == Symbol.RECEIVER_FAILED){
+                    thumb.setText("...");
+                    comments.setText("...");
+                }
+
             }
         };
         new Thread(new Runnable() {
@@ -203,6 +216,7 @@ public class ArticleActivity extends Activity {
                     @Override
                     public void onResponse(JSONObject response) {
                         storyExtra = gson.fromJson(response.toString(), StoryExtra.class);
+                        Log.d("storyExtra",storyExtra.toString());
                         Message message = new Message();
                         message.what = Symbol.RECEIVE_SUCCESS;
                         getStoryExtra.sendMessage(message);
@@ -220,5 +234,4 @@ public class ArticleActivity extends Activity {
             }
         }).start();
     }
-
 }

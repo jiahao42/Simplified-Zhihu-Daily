@@ -23,4 +23,8 @@ public class Url {
      * 在getComment之后加上id 然后再加上long-comments 或者 short-comments
      */
     public static final String getComment = "http://news-at.zhihu.com/api/4/story/";
+    /**
+     * 加上栏目id即可得到栏目信息
+     */
+    public static final String getThemeStory = "http://news-at.zhihu.com/api/4/theme/";
 }

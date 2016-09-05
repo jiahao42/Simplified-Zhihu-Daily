@@ -10,13 +10,23 @@ import com.google.gson.annotations.SerializedName;
  */
 public class StoryExtra {
     @SerializedName("long_comments")
-    private int numberOfLongComment;
+    private int numberOfLongComment ;
     @SerializedName("popularity")
-    private int popularity;
+    private int popularity ;
     @SerializedName("short_comments")
-    private int numberOfShortComment;
+    private int numberOfShortComment ;
     @SerializedName("comments")
-    private int snmOfComment;
+    private int snmOfComment ;
+
+    @Override
+    public String toString() {
+        return "StoryExtra{" +
+                "numberOfLongComment=" + numberOfLongComment +
+                ", popularity=" + popularity +
+                ", numberOfShortComment=" + numberOfShortComment +
+                ", snmOfComment=" + snmOfComment +
+                '}';
+    }
 
     public int getNumberOfLongComment() {
         return numberOfLongComment;
@@ -42,7 +52,7 @@ public class StoryExtra {
         this.numberOfShortComment = numberOfShortComment;
     }
 
-    public int getSnmOfComment() {
+    public int getSumOfComment() {
         return snmOfComment;
     }
 
