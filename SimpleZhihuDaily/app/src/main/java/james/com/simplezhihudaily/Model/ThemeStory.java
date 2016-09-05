@@ -1,10 +1,21 @@
 package james.com.simplezhihudaily.Model;
 
+import android.graphics.Bitmap;
+
 import com.google.gson.annotations.SerializedName;
 
 public class ThemeStory extends BaseStory{
     final static private int isThemeStory = 2;
     private String categoryID;
+    private Bitmap bitmap;
+
+    public Bitmap getBitmap() {
+        return bitmap;
+    }
+
+    public void setBitmap(Bitmap bitmap) {
+        this.bitmap = bitmap;
+    }
 
     public String getCategoryID() {
         return this.categoryID;
@@ -29,7 +40,11 @@ public class ThemeStory extends BaseStory{
     }
 
     public String getUrls() {
-        return urls[0];
+        if (urls != null){
+            return urls[0];
+        }else {
+            return null;
+        }
     }
 
     public String getUrls(String  all){
@@ -99,5 +114,12 @@ public class ThemeStory extends BaseStory{
     }
     public int getAttr(){
         return isThemeStory;
+    }
+
+    @Override
+    public String toString() {
+        return "ThemeStory{" +
+                "categoryID='" + categoryID + '\'' +
+                '}';
     }
 }

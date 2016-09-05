@@ -42,7 +42,6 @@ public class ArticleActivity extends Activity {
     private String id;
     private RequestQueue mQueue;
     private WebView article;
-    private String url = "http://news-at.zhihu.com/api/4/news/";
     private String cssUrl;
     private String htmlString;
     private Document document;
@@ -91,7 +90,7 @@ public class ArticleActivity extends Activity {
                 } else
                 {
                     Log.d("aboutDB","get_article_fromNET");
-                    JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(url + id, null, new Response.Listener<JSONObject>() {
+                    JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Url.getArticleContent + id, null, new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
                             try

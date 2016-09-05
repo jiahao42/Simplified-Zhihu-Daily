@@ -11,6 +11,7 @@ import java.util.List;
 
 import james.com.simplezhihudaily.Model.Story;
 import james.com.simplezhihudaily.Model.Symbol;
+import james.com.simplezhihudaily.Model.Theme;
 import james.com.simplezhihudaily.Model.ThemeStory;
 import james.com.simplezhihudaily.Model.TopStory;
 
@@ -61,7 +62,7 @@ public class ZhihuDailyDB {
             values.put("id", story.getId());
             values.put("attr", story.getAttr());
             values.put("content", story.getContent());
-            db.insert("ZhihuNews", null, values);
+            db.insert(ZhihuDailyDBhelper.TABLE_NAME, null, values);
         }
     }
 
@@ -79,7 +80,7 @@ public class ZhihuDailyDB {
             values.put("id", topStory.getId());
             values.put("attr", topStory.getAttr());
             values.put("content", topStory.getContent());
-            db.insert("ZhihuNews", null, values);
+            db.insert(ZhihuDailyDBhelper.TABLE_NAME, null, values);
         }
     }
 
@@ -98,7 +99,7 @@ public class ZhihuDailyDB {
             values.put("attr", themeStory.getAttr());
             values.put("content", themeStory.getContent());
             values.put("categoryID", themeStory.getCategoryID());
-            db.insert("ZhihuNews", null, values);
+            db.insert(ZhihuDailyDBhelper.TABLE_NAME, null, values);
         }
     }
 
@@ -154,7 +155,7 @@ public class ZhihuDailyDB {
      * @param date 今日日期
      * @return 若没找到则返回false 找到则返回ture
      */
-    public boolean topStoryInDB(String date) {//注意根据attr字段判断
+    public boolean isTopStoryInDB(String date) {//注意根据attr字段判断
         Cursor cursor = db.rawQuery("select * from " + ZhihuDailyDBhelper.TABLE_NAME +
                 " where date = ? and attr = ?",
                 new String[]{date, String.valueOf(Symbol.TopStory)});
@@ -201,7 +202,7 @@ public class ZhihuDailyDB {
      * @param length the latest number of news
      * @return should insert how many news
      */
-    public int isInserted(String date, int length) {
+    public int isAllStoryInserted(String date, int length) {
         //Cursor cursor = db.query(ZhihuDailyDBhelper.TABLE_NAME, null, "date = ?", new String[]{date}, null, null, null, null);
         Cursor cursor = db.rawQuery("select * from " + ZhihuDailyDBhelper.TABLE_NAME +
                         " where date = ? and attr = ?",
@@ -209,8 +210,25 @@ public class ZhihuDailyDB {
         cursor.moveToFirst();
         int count = cursor.getCount();
         cursor.close();
-        Log.d("how many in the db", String.valueOf(count));
+        Log.d("how many Story in DB", String.valueOf(count));
         return length - count;//直接返回差距个数 最少为0 最多不限
+    }
+
+    /**
+     * 对比请求到的专栏文章条目数与数据库中的，并返回差值，防止重复存储
+     * @param date  要查询的日期
+     * @param length    请求到的文章条目数
+     * @param categoryID    要查询的栏目ID
+     * @return      数量差值
+     */
+    public int isAllThemeStoryInserted(String date,int length,int categoryID){
+        Cursor cursor = db.query(ZhihuDailyDBhelper.TABLE_NAME,null,"date = ? AND categoryID = ? AND attr = ?",new String[]{
+                date,String.valueOf(categoryID),String.valueOf(Symbol.ThemeStory)},null,null,null);
+        cursor.moveToFirst();
+        int count = cursor.getCount();
+        cursor.close();
+        Log.d("how many Theme in DB",String.valueOf(count));
+        return length - count;
     }
 
     /**
@@ -287,4 +305,50 @@ public class ZhihuDailyDB {
         }
         return list;
     }
+
+    /**
+     * 存储Theme到数据库
+     * @param theme
+     */
+    public void saveThemes(Theme theme){
+        ContentValues contentValues = null;
+        if (theme != null)
+        {
+            contentValues = new ContentValues();
+            contentValues.put("id", theme.getId());
+            contentValues.put("description", theme.getDescription());
+            contentValues.put("name", theme.getName());
+            contentValues.put("img", theme.getUrl());
+        }
+            try
+            {
+                db.insert(ZhihuDailyDBhelper.TABLE_NAME_THEME, null, contentValues);
+            }catch (Exception e){
+                db.update(ZhihuDailyDBhelper.TABLE_NAME_THEME,contentValues,"id = ? AND description = ? AND name = ? AND img = ?",new String[]{
+                        contentValues.getAsString("id"),contentValues.getAsString("description"),contentValues.getAsString("name"),contentValues.getAsString("img")
+                });
+                e.printStackTrace();
+            }
+    }
+
+    /**
+     * get themes from db
+     * @return  themes
+     */
+    public List<Theme> getTheme(){
+        List<Theme> list = new ArrayList<>();
+        Cursor cursor = db.query(ZhihuDailyDBhelper.TABLE_NAME_THEME,null,null,null,null,null,null);
+        cursor.moveToFirst();
+        do
+        {
+            Theme theme = new Theme();
+            theme.setId(cursor.getInt(cursor.getColumnIndex("id")));
+            theme.setDescription(cursor.getString(cursor.getColumnIndex("description")));
+            theme.setName(cursor.getString(cursor.getColumnIndex("name")));
+            theme.setUrl(cursor.getString(cursor.getColumnIndex("img")));
+            list.add(theme);
+        }while (cursor.moveToNext());
+        return list;
+    }
+
 }

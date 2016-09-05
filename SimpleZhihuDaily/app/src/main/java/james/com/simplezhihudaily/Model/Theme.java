@@ -20,6 +20,7 @@ public class Theme {
     @SerializedName("name")
     private String name;
 
+    public Theme(){}
     public Theme(String url, String description, int id, String name) {
         this.url = url;
         this.description = description;

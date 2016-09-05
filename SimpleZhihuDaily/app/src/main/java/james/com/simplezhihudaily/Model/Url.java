@@ -2,6 +2,10 @@ package james.com.simplezhihudaily.Model;
 
 public class Url {
     /**
+     * 根据id得到文章内容
+     */
+    public static final String getArticleContent = "http://news-at.zhihu.com/api/4/news/";
+    /**
      * 得到往日的新闻 在最后加上日期
      */
     public static final String getNewsBefore = "http://news-at.zhihu.com/api/4/news/before/";

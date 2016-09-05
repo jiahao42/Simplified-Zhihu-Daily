@@ -2,7 +2,6 @@ package james.com.simplezhihudaily.View;
 
 import android.animation.ObjectAnimator;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -72,7 +71,7 @@ import static james.com.simplezhihudaily.R.drawable.error;
 
 
 public class MainActivity extends Activity implements AdapterView.OnItemSelectedListener ,View.OnClickListener{
-    private List<Story> newsList = new ArrayList<>();
+    private List<Story> StoryList = new ArrayList<>();
     private TopStory[] topStories;
     private String[] storyPicUrls;
     private String[] topStoryPicUrls;
@@ -122,17 +121,17 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
         public void handleMessage(Message message) {
             if (message.what == Symbol.RECEIVE_SUCCESS)
             {
-                storyPicUrls = new String[newsList.size()];
+                storyPicUrls = new String[StoryList.size()];
                 Resources res = getResources();
                 Bitmap bitmap = BitmapFactory.decodeResource(res, error);
                 /**
                  * 下面得到Story的Url
                  */
-                for (int i = 0; i < newsList.size(); i++)
+                for (int i = 0; i < StoryList.size(); i++)
                 {
-                    Log.d("TAG", newsList.get(i).getUrls());
-                    storyPicUrls[i] = newsList.get(i).getUrls();
-                    newsList.get(i).setBitmap(bitmap);
+                    Log.d("TAG", StoryList.get(i).getUrls());
+                    storyPicUrls[i] = StoryList.get(i).getUrls();
+                    StoryList.get(i).setBitmap(bitmap);
                     adapter.notifyDataSetChanged();//将notify放进了循环 如果网特别差 图片还可以一张张跳出来
                 }
                 /**
@@ -200,7 +199,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                             {
                                 titleDate.setText(Util.parseDate(String.valueOf(date)));
                                 //为了防止重复存储top_story的信息 在此先检查一下 并设置flag 已存在则不读
-                                if (zhihuDailyDB.topStoryInDB(date))
+                                if (zhihuDailyDB.isTopStoryInDB(date))
                                 {
                                     topStories = zhihuDailyDB.loadTopStory(date);
                                     for (int i = 0; i < numberOfTopStories; i++)
@@ -264,7 +263,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                                     所以我之前直接根据日期来判断是否还要插入新的基本数据是不对的
                                     应该同时传入数组长度比较 然后直接返回更新title的个数
                              */
-                            int count = zhihuDailyDB.isInserted(date, story.length);
+                            int count = zhihuDailyDB.isAllStoryInserted(date, story.length);
                             for (int i = 0; i < count; i++)
                             {
                                 Log.d("TAG", "saving..." + i);
@@ -273,9 +272,9 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                             /*
                             此处得到了所有的带有基本信息的对象集合
                              */
-                            adapter = new StoryAdapter(MainActivity.this, R.layout.story_item, newsList);
-                            newsList.clear();
-                            Collections.addAll(newsList, story);
+                            adapter = new StoryAdapter(MainActivity.this, R.layout.story_item, StoryList);
+                            StoryList.clear();
+                            Collections.addAll(StoryList, story);
                             listView.setAdapter(adapter);
                             adapter.notifyDataSetChanged();//先notify一下 让文字先显示出来 再去请求图片
                             Message message = new Message();
@@ -319,9 +318,11 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                 } else
                 {//没请求到数据则直接到本地取
                     int count = sharedPreferences.getInt("sum", 0);
+                    List<Theme> list = new ArrayList<>();
+                    list.addAll(zhihuDailyDB.getTheme());
                     for (int i = 0; i < count; i++)
                     {
-                        spinnerList.add(sharedPreferences.getString("name" + count, "error"));
+                        spinnerList.add(list.get(i).getName());
                     }
                 }
                 initSpinner();
@@ -340,15 +341,8 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                             int count = 0;
                             for (int i = 0; i < themes.length; i++)
                             {
-                                editor.putInt("id" + count, themes[i].getId());
-                                editor.putString("description" + count, themes[i].getDescription());
-                                editor.putString("name" + count, themes[i].getName());
-                                editor.putString("img" + count, themes[i].getUrl());
-                                count++;
-                                editor.apply();
+                                zhihuDailyDB.saveThemes(themes[i]);
                             }
-                            editor.putInt("sum", count);
-                            editor.apply();//把栏目总数给存了
                             Message message = new Message();
                             message.what = Symbol.RECEIVE_SUCCESS;
                             getThemeHandler.sendMessage(message);
@@ -405,6 +399,8 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
             Log.d("Spinner", String.valueOf(arg0.getId()));
             String itemString = spinner.getItemAtPosition(arg2).toString();
             Intent intent;
+            String desc;
+            // TODO: 2016/9/5 有时间要去掉硬编码
             switch (itemString){
                 case "今日热闻":
                     Toast.makeText(this,"已经在今日热闻了",Toast.LENGTH_SHORT).show();
@@ -418,40 +414,52 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                     startActivity(intent);
                     break;
                 case "日常心理学":
-                    jumpToThemeArticle("日常心理学");
+                    desc = "了解自己和别人，了解彼此的欲望和局限。";
+                    jumpToThemeArticle("日常心理学",desc);
                     break;
                 case "用户推荐日报":
-                    jumpToThemeArticle("用户推荐日报");
+                    desc = "内容由知乎用户推荐，海纳主题百万，趣味上天入地";
+                    jumpToThemeArticle("用户推荐日报",desc);
                     break;
                 case "电影日报":
-                    jumpToThemeArticle("电影日报");
+                    desc = "除了经典和新片，我们还关注技术和产业";
+                    jumpToThemeArticle("电影日报",desc);
                     break;
                 case "不许无聊":
-                    jumpToThemeArticle("不许无聊");
+                    desc = "为你发现最有趣的新鲜事，建议在 WiFi 下查看";
+                    jumpToThemeArticle("不许无聊",desc);
                     break;
                 case "设计日报":
-                    jumpToThemeArticle("设计日报");
+                    desc = "好设计需要打磨和研习，我们分享灵感和路径";
+                    jumpToThemeArticle("设计日报",desc);
                     break;
                 case "大公司日报":
-                    jumpToThemeArticle("大公司日报");
+                    desc = "商业世界变化越来越快，就是这些家伙干的";
+                    jumpToThemeArticle("大公司日报",desc);
                     break;
                 case "财经日报":
-                    jumpToThemeArticle("财经日报");
+                    desc = "从业者推荐的财经金融资讯";
+                    jumpToThemeArticle("财经日报",desc);
                     break;
                 case "互联网安全":
-                    jumpToThemeArticle("互联网安全");
+                    desc = "把黑客知识科普到你的面前";
+                    jumpToThemeArticle("互联网安全",desc);
                     break;
                 case "开始游戏":
-                    jumpToThemeArticle("开始游戏");
+                    desc = "如果你喜欢游戏，就从这里开始";
+                    jumpToThemeArticle("开始游戏",desc);
                     break;
                 case "音乐日报":
-                    jumpToThemeArticle("音乐日报");
+                    desc = "有音乐就很好";
+                    jumpToThemeArticle("音乐日报",desc);
                     break;
                 case "动漫日报":
-                    jumpToThemeArticle("动漫日报");
+                    desc = "用技术的眼睛仔细看懂每一部动画和漫画";
+                    jumpToThemeArticle("动漫日报",desc);
                     break;
                 case "体育日报":
-                    jumpToThemeArticle("体育日报");
+                    desc = "关注体育，不吵架。";
+                    jumpToThemeArticle("体育日报",desc);
                     break;
                 default:
                     Toast.makeText(this, "你选中的是" + itemString, Toast.LENGTH_SHORT)
@@ -460,10 +468,11 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
             }
         }
     }
-    private void jumpToThemeArticle(String theme){
+    private void jumpToThemeArticle(String theme,String desc){
         Bundle bundle;
         Intent intent;
         bundle = new Bundle();
+        bundle.putString("desc",desc);
         bundle.putString("id",theme);
         intent = new Intent(mainActivity,ThemeFrameActivity.class);
         intent.putExtra("id",bundle);
@@ -498,7 +507,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                     ImageRequest imageRequest = new ImageRequest(storyPicUrls[count], new Response.Listener<Bitmap>() {
                         @Override
                         public void onResponse(Bitmap response) {
-                            newsList.get(count).setBitmap(response);
+                            StoryList.get(count).setBitmap(response);
                             Message message = new Message();
                             Bundle bundle = new Bundle();
                             bundle.putInt("count", count);
@@ -555,14 +564,14 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
      * 此方法是为了获取往日的配图
      */
     private void getPicFromNet() {
-        storyPicUrls = new String[newsList.size()];
+        storyPicUrls = new String[StoryList.size()];
         Resources res = getResources();
         Bitmap bitmap = BitmapFactory.decodeResource(res, error);
-        for (int i = 0; i < newsList.size(); i++)
+        for (int i = 0; i < StoryList.size(); i++)
         {
-            Log.d("TAG", newsList.get(i).getUrls());
-            storyPicUrls[i] = newsList.get(i).getUrls();
-            newsList.get(i).setBitmap(bitmap);
+            Log.d("TAG", StoryList.get(i).getUrls());
+            storyPicUrls[i] = StoryList.get(i).getUrls();
+            StoryList.get(i).setBitmap(bitmap);
             adapter.notifyDataSetChanged();//将notify放进了循环 如果网特别差 图片还可以一张张跳出来
         }
         getStoryPics();
@@ -598,7 +607,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
         }
         titleText.bringToFront();
         zhihuDailyDB = ZhihuDailyDB.getInstance(mainActivity);
-        adapter = new StoryAdapter(MainActivity.this, R.layout.story_item, newsList);
+        adapter= new StoryAdapter(MainActivity.this, R.layout.story_item, StoryList);
         listView.setAdapter(adapter);
         setListViewListener();
         initDateListener();
@@ -683,12 +692,12 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                 {
                     titleDate.setText(Util.parseDate(String.valueOf(dateControl.getCursor())));
                     /*
-                    newsList = new ArrayList<NewsInfo>();
+                    StoryList = new ArrayList<NewsInfo>();
                     不能使用上述方法 因为这样的话等于重新建立了一个对象 该对象并不是观察者
                      */
-                    adapter = new StoryAdapter(MainActivity.this, R.layout.story_item, newsList);
-                    newsList.clear();
-                    newsList.addAll(zhihuDailyDB.loadStory(String.valueOf(dateControl.getCursor())));
+                    adapter = new StoryAdapter(MainActivity.this, R.layout.story_item, StoryList);
+                    StoryList.clear();
+                    StoryList.addAll(zhihuDailyDB.loadStory(String.valueOf(dateControl.getCursor())));
                     listView.setAdapter(adapter);
                     /*
                     从数据库中取出来的对象 只有配图的url 而没有配图的图片 所以得去服务器请求
@@ -717,18 +726,18 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                     {
                         titleDate.setText(Util.parseDate(String.valueOf(dateControl.getCursor())));
                     /*
-                    newsList = new ArrayList<NewsInfo>();
+                    StoryList = new ArrayList<NewsInfo>();
                     不能使用上述方法 因为这样的话等于重新建立了一个对象 该对象并不是观察者
                     无法使用notifyDataSetChanged()
                      */
                         // ... Modify adapter ... do anything else you need to do
                         // To clear the recycled views list :
-                        adapter = new StoryAdapter(MainActivity.this, R.layout.story_item, newsList);
-                        newsList.clear();
-                        newsList.addAll(zhihuDailyDB.loadStory(String.valueOf(dateControl.getCursor())));
-                        for (int i = 0; i < newsList.size(); i++)
+                        adapter = new StoryAdapter(MainActivity.this, R.layout.story_item, StoryList);
+                        StoryList.clear();
+                        StoryList.addAll(zhihuDailyDB.loadStory(String.valueOf(dateControl.getCursor())));
+                        for (int i = 0; i < StoryList.size(); i++)
                         {
-                            Log.d("whatsWrong", newsList.get(i).toString());
+                            Log.d("whatsWrong", StoryList.get(i).toString());
                         }
                         listView.setAdapter(adapter);
                     /*
@@ -810,7 +819,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                Story story = newsList.get(position);
+                Story story = StoryList.get(position);
                 Toast.makeText(mainActivity, story.getTitle(), Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(mainActivity, ArticleActivity.class);
                 Bundle bundle = new Bundle();

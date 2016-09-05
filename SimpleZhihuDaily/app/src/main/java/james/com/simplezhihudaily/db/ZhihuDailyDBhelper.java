@@ -4,6 +4,8 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import static james.com.simplezhihudaily.View.MainActivity.themes;
+
 public class ZhihuDailyDBhelper extends SQLiteOpenHelper {
     //create province
     private static final String COLUMN_TITLE = "title";
@@ -23,6 +25,20 @@ public class ZhihuDailyDBhelper extends SQLiteOpenHelper {
             + COLUMN_Attr + " int,"//文章属性 可以是下拉列表的文章(0) 或者顶部的文章(1) 或者主题日报的文章(2)
             + COLUMN_themeID + " int)";
 
+    /**
+     * 这个用来存栏目信心 事实证明 用SharedPreference来存效果不好
+     */
+    private static final String COLUMN_ID_THEME = "id";
+    private static final String COLUMN_DESC_THEME = "description";
+    private static final String COLUMN_NAME_THEME = "name";
+    private static final String COLUMN_IMG_THEME = "img";
+    public static final String TABLE_NAME_THEME = "ThemeTable";
+    private static final String CREATE_TABLE_THEME = "create table " + TABLE_NAME_THEME + " ( "
+            + COLUMN_ID_THEME + " int unique not null, "
+            + COLUMN_DESC_THEME + " text , "
+            + COLUMN_IMG_THEME + " text, "
+            + COLUMN_NAME_THEME + " text not null)";
+
 
     public ZhihuDailyDBhelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
@@ -36,6 +52,7 @@ public class ZhihuDailyDBhelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(CREATE_TABLE);
+        db.execSQL(CREATE_TABLE_THEME);
     }
 
     @Override
