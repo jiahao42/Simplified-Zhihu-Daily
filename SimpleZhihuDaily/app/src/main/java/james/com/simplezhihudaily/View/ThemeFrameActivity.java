@@ -64,8 +64,9 @@ public class ThemeFrameActivity extends Activity {
     private void initWidget() {
         Intent intent = getIntent();
         Bundle bundle = intent.getBundleExtra("id");
-        String theme = bundle.getString("id");
+        String theme = bundle.getString("name");
         String desc = bundle.getString("desc");
+        Bitmap bitmap = bundle.getParcelable("bitmap");
         Log.d("jumpToTheme", theme);
         for (int i = 0; i < MainActivity.themes.length; i++)
         {
@@ -79,8 +80,8 @@ public class ThemeFrameActivity extends Activity {
         title = (TextView) findViewById(R.id.title);
         title.setText(theme);
         topPicture = (ImageView) findViewById(R.id.top_picture);
+        topPicture.setImageBitmap(bitmap);
         listView = (ListView) findViewById(R.id.listView);
-        ;
 
         description = (TextView) findViewById(R.id.description);
         description.setText(desc);
@@ -108,6 +109,7 @@ public class ThemeFrameActivity extends Activity {
                     for (int i = 0; i < themeStories.size(); i++)
                     {
                         picUrls[i] = themeStories.get(i).getUrls();
+                        //Log.d("ThemePic",picUrls[i]);
                     }
                     getPicFromNet();
                 } else
@@ -133,6 +135,8 @@ public class ThemeFrameActivity extends Activity {
                             listView.setAdapter(adapter);
                             for (int i = 0; i < themeStories.size(); i++)
                             {
+                                Log.d("ThemeUrl",temp[5].toString());
+                                //Log.d("getThemeStory",themeStories.get(i).toString());
                                 themeStories.get(i).setDate(String.valueOf(DateControl.getInstance().getToday()));
                                 themeStories.get(i).setCategoryID(String.valueOf(categoryID));
                             }
@@ -141,11 +145,15 @@ public class ThemeFrameActivity extends Activity {
                              */
                             int categoryID = Integer.parseInt(themeStories.get(0).getCategoryID());
                             int count = zhihuDailyDB.isAllThemeStoryInserted(String.valueOf(dateControl.getToday()), themeStories.size(), categoryID);
+
                             for (int i = 0; i < count; i++)
                             {
                                 zhihuDailyDB.saveThemeStory(themeStories.get(i));
-                                Log.d("saveThemeStory", themeStories.get(i).toString());
+                                //Log.d("saveThemeStory", themeStories.get(i).toString());
                             }
+                            Message message = new Message();
+                            message.what = Symbol.RECEIVE_SUCCESS;
+                            handler.sendMessage(message);
                         } catch (JSONException e)
                         {
                             e.printStackTrace();
@@ -184,9 +192,7 @@ public class ThemeFrameActivity extends Activity {
 
             }
         };
-        new
-
-                Thread(new Runnable() {
+        new Thread(new Runnable() {
             @Override
             public void run() {
                 for (int i = 0; i < picUrls.length; i++)
@@ -199,6 +205,7 @@ public class ThemeFrameActivity extends Activity {
                             message.what = Symbol.RECEIVE_SUCCESS;
                             handler.sendMessage(message);
                             themeStories.get(count).setBitmap(response);
+                            Log.d("getThemePic","it is" + count);
                             adapter.notifyDataSetChanged();
                         }
                     }, 0, 0, ImageView.ScaleType.CENTER, Bitmap.Config.RGB_565, new Response.ErrorListener() {
@@ -215,9 +222,7 @@ public class ThemeFrameActivity extends Activity {
             }
         }
 
-        ).
-
-                start();
+        ).start();
     }
 
     @Override

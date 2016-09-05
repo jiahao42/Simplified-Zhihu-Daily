@@ -1,5 +1,7 @@
 package james.com.simplezhihudaily.Model;
 
+import android.graphics.Bitmap;
+
 import com.google.gson.annotations.SerializedName;
 
 import static android.R.attr.name;
@@ -19,6 +21,16 @@ public class Theme {
     private int id;
     @SerializedName("name")
     private String name;
+
+    public Bitmap getBitmap() {
+        return bitmap;
+    }
+
+    public void setBitmap(Bitmap bitmap) {
+        this.bitmap = bitmap;
+    }
+
+    private Bitmap bitmap;
 
     public Theme(){}
     public Theme(String url, String description, int id, String name) {

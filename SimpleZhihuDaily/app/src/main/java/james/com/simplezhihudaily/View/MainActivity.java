@@ -99,6 +99,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
     private List<String> spinnerList;
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
+    private String [] themePics;
 
 
     private boolean mIsShowTitle = false;
@@ -113,7 +114,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
         setContentView(R.layout.layout_main);
         initWidget();
         //doLogic();
-        getNewsUrl("latest");
+        getStoryUrl("latest");
     }
 
     private final Handler getUrlArrayHandler = new Handler() {
@@ -159,7 +160,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
      *
      * @param certainDate 要查询的日期
      */
-    private void getNewsUrl(final String certainDate) {
+    private void getStoryUrl(final String certainDate) {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -315,6 +316,11 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                     {
                         spinnerList.add(theme.getName());
                     }
+                    themePics = new String[themes.length];
+                    for (int i = 0; i < themes.length; i++){
+                        themePics[i] = themes[i].getUrl();
+                    }
+                    getThemePics();
                 } else
                 {//没请求到数据则直接到本地取
                     int count = sharedPreferences.getInt("sum", 0);
@@ -339,9 +345,11 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                         {
                             themes = gson.fromJson(response.getString("others"), Theme[].class);
                             int count = 0;
-                            for (int i = 0; i < themes.length; i++)
-                            {
-                                zhihuDailyDB.saveThemes(themes[i]);
+                            if (zhihuDailyDB.howManyThemeInDB() != 0){
+                                for (int i = 0; i < themes.length; i++)
+                                {
+                                    zhihuDailyDB.saveThemes(themes[i]);
+                                }
                             }
                             Message message = new Message();
                             message.what = Symbol.RECEIVE_SUCCESS;
@@ -362,6 +370,47 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                 });
                 mQueue.add(jsonObjectRequest);
                 mQueue.start();
+            }
+        }).start();
+    }
+
+    private void getThemePics(){
+        final Handler handler = new Handler(){
+            @Override
+            public void handleMessage(Message message){
+                if (message.what == Symbol.RECEIVE_SUCCESS){
+
+                }else {
+                    for(Theme theme:themes){
+                        Bitmap icon = BitmapFactory.decodeResource(mainActivity.getResources(),
+                                R.drawable.error);
+                        theme.setBitmap(icon);
+                    }
+                }
+            }
+
+        };
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0;i < themes.length; i++){
+                    final int count = i;
+                    ImageRequest imageRequest = new ImageRequest(themes[i].getUrl(), new Response.Listener<Bitmap>() {
+                        @Override
+                        public void onResponse(Bitmap response) {
+                            themes[count].setBitmap(response);
+                        }
+                    }, 0, 0, ImageView.ScaleType.CENTER, Bitmap.Config.RGB_565, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Message message = new Message();
+                            message.what = Symbol.RECEIVER_FAILED;
+                            handler.sendMessage(message);
+                        }
+                    });
+                    mQueue.add(imageRequest);
+                    mQueue.start();
+                }
             }
         }).start();
     }
@@ -415,51 +464,51 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                     break;
                 case "日常心理学":
                     desc = "了解自己和别人，了解彼此的欲望和局限。";
-                    jumpToThemeArticle("日常心理学",desc);
+                    jumpToThemeFrame(getThemeIndex("日常心理学"));
                     break;
                 case "用户推荐日报":
                     desc = "内容由知乎用户推荐，海纳主题百万，趣味上天入地";
-                    jumpToThemeArticle("用户推荐日报",desc);
+                    jumpToThemeFrame(getThemeIndex("用户推荐日报"));
                     break;
                 case "电影日报":
                     desc = "除了经典和新片，我们还关注技术和产业";
-                    jumpToThemeArticle("电影日报",desc);
+                    jumpToThemeFrame(getThemeIndex("电影日报"));
                     break;
                 case "不许无聊":
                     desc = "为你发现最有趣的新鲜事，建议在 WiFi 下查看";
-                    jumpToThemeArticle("不许无聊",desc);
+                    jumpToThemeFrame(getThemeIndex("不许无聊"));
                     break;
                 case "设计日报":
                     desc = "好设计需要打磨和研习，我们分享灵感和路径";
-                    jumpToThemeArticle("设计日报",desc);
+                    jumpToThemeFrame(getThemeIndex("设计日报"));
                     break;
                 case "大公司日报":
                     desc = "商业世界变化越来越快，就是这些家伙干的";
-                    jumpToThemeArticle("大公司日报",desc);
+                    jumpToThemeFrame(getThemeIndex("大公司日报"));
                     break;
                 case "财经日报":
                     desc = "从业者推荐的财经金融资讯";
-                    jumpToThemeArticle("财经日报",desc);
+                    jumpToThemeFrame(getThemeIndex("财经日报"));
                     break;
                 case "互联网安全":
                     desc = "把黑客知识科普到你的面前";
-                    jumpToThemeArticle("互联网安全",desc);
+                    jumpToThemeFrame(getThemeIndex("互联网安全"));
                     break;
                 case "开始游戏":
                     desc = "如果你喜欢游戏，就从这里开始";
-                    jumpToThemeArticle("开始游戏",desc);
+                    jumpToThemeFrame(getThemeIndex("开始游戏"));
                     break;
                 case "音乐日报":
                     desc = "有音乐就很好";
-                    jumpToThemeArticle("音乐日报",desc);
+                    jumpToThemeFrame(getThemeIndex("音乐日报"));
                     break;
                 case "动漫日报":
                     desc = "用技术的眼睛仔细看懂每一部动画和漫画";
-                    jumpToThemeArticle("动漫日报",desc);
+                    jumpToThemeFrame(getThemeIndex("动漫日报"));
                     break;
                 case "体育日报":
                     desc = "关注体育，不吵架。";
-                    jumpToThemeArticle("体育日报",desc);
+                    jumpToThemeFrame(getThemeIndex("体育日报"));
                     break;
                 default:
                     Toast.makeText(this, "你选中的是" + itemString, Toast.LENGTH_SHORT)
@@ -468,17 +517,38 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
             }
         }
     }
-    private void jumpToThemeArticle(String theme,String desc){
+
+    /**
+     * 跳到专栏界面
+     * @param index 数组下标
+     */
+    private void jumpToThemeFrame(int index){
         Bundle bundle;
         Intent intent;
         bundle = new Bundle();
-        bundle.putString("desc",desc);
-        bundle.putString("id",theme);
+        bundle.putString("desc",themes[index].getDescription());
+        bundle.putString("name",themes[index].getName());
+        bundle.putParcelable("bitmap",themes[index].getBitmap());
         intent = new Intent(mainActivity,ThemeFrameActivity.class);
         intent.putExtra("id",bundle);
         startActivity(intent);
     }
 
+    /**
+     * 通过标题栏目返回该标题在数组中的下标
+     * @param name  栏目名
+     * @return  下标
+     */
+    private int getThemeIndex(String name){
+        int index = 0;
+        for (int i = 0; i < themes.length;i++){
+            if (themes[i].getName().equals(name)){
+                index = i;
+                break;
+            }
+        }
+        return index;
+    }
 
     @Override
     public void onNothingSelected(AdapterView<?> arg0) {
@@ -620,14 +690,14 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                 try
                 {
                     getTopStoryFlag = true;
-                    getNewsUrl("latest");
+                    getStoryUrl("latest");
                     dateControl.backToToday();//刷新后在点左箭头应该重新回到昨天的内容
                     Thread.sleep(3000);
                 } catch (InterruptedException e)
                 {
                     e.printStackTrace();
                 }
-                //getNewsUrl();
+                //getStoryUrl();
                 refreshableView.finishRefreshing();
             }
         }, 0);
@@ -708,7 +778,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                 {
                     titleDate.setText(Util.parseDate(String.valueOf(dateControl.getCursor())));
                     dateControl.addOneDay();
-                    getNewsUrl(String.valueOf(dateControl.getCursor()));
+                    getStoryUrl(String.valueOf(dateControl.getCursor()));
                     dateControl.subOneDay();
                 }
             }
@@ -750,7 +820,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                         dateControl.addOneDay();
                         titleDate.setText(Util.parseDate(String.valueOf(dateControl.getCursor())));
                         dateControl.subOneDay();
-                        getNewsUrl(String.valueOf(dateControl.getCursor()));
+                        getStoryUrl(String.valueOf(dateControl.getCursor()));
                     }
                 }
 

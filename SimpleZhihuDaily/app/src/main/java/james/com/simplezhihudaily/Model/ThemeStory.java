@@ -9,6 +9,7 @@ public class ThemeStory extends BaseStory{
     private String categoryID;
     private Bitmap bitmap;
 
+
     public Bitmap getBitmap() {
         return bitmap;
     }
@@ -119,7 +120,7 @@ public class ThemeStory extends BaseStory{
     @Override
     public String toString() {
         return "ThemeStory{" +
-                "categoryID='" + categoryID + '\'' +
+                "categoryID='" + categoryID + '\'' + "url = " + urls[0] +
                 '}';
     }
 }

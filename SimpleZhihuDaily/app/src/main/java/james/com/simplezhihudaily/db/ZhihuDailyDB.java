@@ -320,15 +320,19 @@ public class ZhihuDailyDB {
             contentValues.put("name", theme.getName());
             contentValues.put("img", theme.getUrl());
         }
-            try
-            {
-                db.insert(ZhihuDailyDBhelper.TABLE_NAME_THEME, null, contentValues);
-            }catch (Exception e){
-                db.update(ZhihuDailyDBhelper.TABLE_NAME_THEME,contentValues,"id = ? AND description = ? AND name = ? AND img = ?",new String[]{
-                        contentValues.getAsString("id"),contentValues.getAsString("description"),contentValues.getAsString("name"),contentValues.getAsString("img")
-                });
-                e.printStackTrace();
-            }
+        db.insert(ZhihuDailyDBhelper.TABLE_NAME_THEME, null, contentValues);
+    }
+
+    /**
+     * 获得数据库中的栏目数 若与请求到的不相同则进行插入操作
+     * @return  栏目数量
+     */
+    public int howManyThemeInDB(){
+        Cursor cursor = db.query(ZhihuDailyDBhelper.TABLE_NAME_THEME,null,null,null,null,null,null);
+        cursor.moveToFirst();
+        int count = cursor.getCount();
+        cursor.close();
+        return count;
     }
 
     /**
@@ -348,6 +352,7 @@ public class ZhihuDailyDB {
             theme.setUrl(cursor.getString(cursor.getColumnIndex("img")));
             list.add(theme);
         }while (cursor.moveToNext());
+        cursor.close();
         return list;
     }
 
