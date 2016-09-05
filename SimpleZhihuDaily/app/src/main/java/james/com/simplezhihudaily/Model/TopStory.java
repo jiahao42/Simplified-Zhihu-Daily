@@ -91,6 +91,6 @@ public class TopStory extends BaseStory{
     }
     @Override
     public String toString() {
-        return "id: " + getId() + ",date: " + getDate() + ",title: " + getTitle() + ",this.myUrls: " + getmyUrls();
+        return "id: " + getId() + ",date: " + getDate() + ",content: " + getTitle() + ",this.myUrls: " + getmyUrls();
     }
 }

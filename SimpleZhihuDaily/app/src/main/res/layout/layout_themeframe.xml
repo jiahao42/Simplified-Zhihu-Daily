@@ -3,30 +3,49 @@
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
-<TextView
-    android:id="@+id/title"
-    android:text="See you on the Dark Side of the Moon"
-    android:gravity="center"
-    android:background="#ffffff"
-    android:layout_width="match_parent"
-    android:textSize="20sp"
-    android:layout_height="30sp">
-</TextView>
+        <TextView
+            android:id="@+id/title"
+            android:text="See you on the Dark Side of the Moon"
+            android:layout_marginTop="15dp"
+            android:gravity="left"
+            android:layout_width="match_parent"
+            android:textSize="25sp"
+            android:layout_marginLeft="20dp"
+            android:textColor="#3f5de6"
+            android:layout_height="50dp">
+        </TextView>
+
+        <!--
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:scrollbarSize="20sp"
+            android:layout_marginTop="10dp"
+            >
+        </Spinner>
+        -->
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="200dp">
+        android:layout_height="240dp">
         <ImageView
             android:id="@+id/top_picture"
             android:src="@drawable/error"
+            android:scaleType="fitXY"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="240dp"
             />
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/description"
             android:text="See you on the Dark side of the Moon"
-            android:layout_centerInParent="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginLeft="20dp"
+            android:textSize="25sp"
+            android:textColor="#ffffff"
             android:gravity="center"
             />
     </RelativeLayout>

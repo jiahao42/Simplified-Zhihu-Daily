@@ -12,7 +12,7 @@ import static android.support.v7.widget.AppCompatDrawableManager.get;
 /**
  * date : 日期
  * stories : 当日新闻
- * title : 新闻标题
+ * content : 新闻标题
  * urls : 图像地址（官方 API 使用数组形式。目前暂未有使用多张图片的情形出现，曾见无 urls 属性的情况，请在使用中注意 ）
  * ga_prefix : 供 Google Analytics 使用
  * type : 作用未知
@@ -21,7 +21,7 @@ import static android.support.v7.widget.AppCompatDrawableManager.get;
  * top_stories : 界面顶部 ViewPager 滚动显示的显示内容（子项格式同上）（请注意区分此处的 image 属性与 stories 中的 urls 属性
  */
 //{"urls":["http:\/\/pic4.zhimg.com\/5baad8cabc7468b74b01229604bd0e73.jpg"],
-// "type":0,"id":8739884,"ga_prefix":"083010","title":"摆满货架的快消巨头，是如何失去了自己的黄金时代"},
+// "type":0,"id":8739884,"ga_prefix":"083010","content":"摆满货架的快消巨头，是如何失去了自己的黄金时代"},
 public class Story extends BaseStory implements Serializable {
     private static final int isBaseStory = 0;
     private Bitmap bitmap;
@@ -141,7 +141,7 @@ public class Story extends BaseStory implements Serializable {
 
     @Override
     public String toString() {
-        return "id: " + getId() + ",date: " + getDate() + ",title: " + getTitle() + ",urls: " + getUrls("all");
+        return "id: " + getId() + ",date: " + getDate() + ",content: " + getTitle() + ",urls: " + getUrls("all");
     }
     public int getAttr(){
         return isBaseStory;

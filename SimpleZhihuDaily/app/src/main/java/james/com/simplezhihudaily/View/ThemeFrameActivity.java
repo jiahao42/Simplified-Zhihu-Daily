@@ -9,9 +9,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -31,6 +36,7 @@ import java.util.Collections;
 import java.util.List;
 
 import james.com.simplezhihudaily.Model.DateControl;
+import james.com.simplezhihudaily.Model.Story;
 import james.com.simplezhihudaily.Model.StoryAdapter;
 import james.com.simplezhihudaily.Model.Symbol;
 import james.com.simplezhihudaily.Model.Theme;
@@ -38,9 +44,14 @@ import james.com.simplezhihudaily.Model.ThemeStory;
 import james.com.simplezhihudaily.Model.ThemeStoryAdapter;
 import james.com.simplezhihudaily.Model.Url;
 import james.com.simplezhihudaily.R;
+import james.com.simplezhihudaily.Util.Util;
 import james.com.simplezhihudaily.db.ZhihuDailyDB;
 
-public class ThemeFrameActivity extends Activity {
+import static james.com.simplezhihudaily.View.MainActivity.mainActivity;
+import static james.com.simplezhihudaily.View.MainActivity.spinnerList;
+import static james.com.simplezhihudaily.View.MainActivity.themes;
+
+public class ThemeFrameActivity extends Activity{
     private int id;
     private List<ThemeStory> themeStories = new ArrayList<>();
     private Gson gson;
@@ -53,6 +64,9 @@ public class ThemeFrameActivity extends Activity {
     private ListView listView;
     private ThemeStoryAdapter adapter;
     private String[] picUrls;
+    private Spinner spinner;
+    private long spinnerSelectedItemId;
+    public ThemeFrameActivity themeFrameActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,24 +81,27 @@ public class ThemeFrameActivity extends Activity {
         String theme = bundle.getString("name");
         String desc = bundle.getString("desc");
         Bitmap bitmap = bundle.getParcelable("bitmap");
+        themeFrameActivity = this;
         Log.d("jumpToTheme", theme);
-        for (int i = 0; i < MainActivity.themes.length; i++)
+        for (int i = 0; i < themes.length; i++)
         {
-            if (theme.equals(MainActivity.themes[i].getName()))
+            if (theme.equals(themes[i].getName()))
             {
-                id = MainActivity.themes[i].getId();
+                id = themes[i].getId();
                 Log.d("jumpToTheme", String.valueOf(id));
                 break;
             }
         }
-        title = (TextView) findViewById(R.id.title);
+        title = (TextView)findViewById(R.id.title);
         title.setText(theme);
         topPicture = (ImageView) findViewById(R.id.top_picture);
         topPicture.setImageBitmap(bitmap);
         listView = (ListView) findViewById(R.id.listView);
-
         description = (TextView) findViewById(R.id.description);
         description.setText(desc);
+
+        initListViewListener();
+
         mQueue = Volley.newRequestQueue(this);
         zhihuDailyDB = ZhihuDailyDB.getInstance(this);
         dateControl = DateControl.getInstance();
@@ -135,7 +152,7 @@ public class ThemeFrameActivity extends Activity {
                             listView.setAdapter(adapter);
                             for (int i = 0; i < themeStories.size(); i++)
                             {
-                                Log.d("ThemeUrl",temp[5].toString());
+                                //Log.d("ThemeUrl",temp[5].toString());
                                 //Log.d("getThemeStory",themeStories.get(i).toString());
                                 themeStories.get(i).setDate(String.valueOf(DateControl.getInstance().getToday()));
                                 themeStories.get(i).setCategoryID(String.valueOf(categoryID));
@@ -167,12 +184,18 @@ public class ThemeFrameActivity extends Activity {
                         handler.sendMessage(message);
                     }
                 });
+                jsonObjectRequest.setShouldCache(true);
                 mQueue.add(jsonObjectRequest);
                 mQueue.start();
             }
         }).start();
     }
 
+    /**
+     * 得到ThemeStory的图片信息
+     * 但是这里出现了一个很大的问题，因为很多ThemeStory都没有"images"属性
+     *
+     */
     private void getPicFromNet() {
         final Handler handler = new Handler() {
             @Override
@@ -198,26 +221,32 @@ public class ThemeFrameActivity extends Activity {
                 for (int i = 0; i < picUrls.length; i++)
                 {
                     final int count = i;
-                    ImageRequest imageRequest = new ImageRequest(picUrls[i], new Response.Listener<Bitmap>() {
-                        @Override
-                        public void onResponse(Bitmap response) {
-                            Message message = new Message();
-                            message.what = Symbol.RECEIVE_SUCCESS;
-                            handler.sendMessage(message);
-                            themeStories.get(count).setBitmap(response);
-                            Log.d("getThemePic","it is" + count);
-                            adapter.notifyDataSetChanged();
-                        }
-                    }, 0, 0, ImageView.ScaleType.CENTER, Bitmap.Config.RGB_565, new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            Message message = new Message();
-                            message.what = Symbol.RECEIVER_FAILED;
-                            handler.sendMessage(message);
-                        }
-                    });
-                    mQueue.add(imageRequest);
-                    mQueue.start();
+                    if (picUrls[count] != null){
+                        ImageRequest imageRequest = new ImageRequest(picUrls[i], new Response.Listener<Bitmap>() {
+                            @Override
+                            public void onResponse(Bitmap response) {
+                                Message message = new Message();
+                                message.what = Symbol.RECEIVE_SUCCESS;
+                                handler.sendMessage(message);
+                                themeStories.get(count).setBitmap(response);
+                                Log.d("getThemePic","it is" + count);
+                                adapter.notifyDataSetChanged();
+                            }
+                        }, 0, 0, ImageView.ScaleType.CENTER, Bitmap.Config.RGB_565, new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Message message = new Message();
+                                message.what = Symbol.RECEIVER_FAILED;
+                                handler.sendMessage(message);
+                            }
+                        });
+                        imageRequest.setShouldCache(true);
+                        mQueue.add(imageRequest);
+                        mQueue.start();
+                    }else {
+                        //themeStories.get(count).setBitmap();
+                        continue;
+                    }
                 }
             }
         }
@@ -225,9 +254,28 @@ public class ThemeFrameActivity extends Activity {
         ).start();
     }
 
+    private void initListViewListener(){
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                ThemeStory story = themeStories.get(position);
+                Toast.makeText(mainActivity, story.getTitle(), Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(mainActivity, ArticleActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("id", String.valueOf(story.getId()));
+                intent.putExtra("id", bundle);
+                startActivity(intent);
+
+            }
+        });
+    }
+
+
     @Override
     public void onBackPressed() {
-        MainActivity.mainActivity.spinner.setSelection(0);//将spinner变回今日热闻
+        mainActivity.spinner.setSelection(Util.safeLongToInt(spinnerSelectedItemId));//将spinner变回
         this.finish();
     }
+
+
 }

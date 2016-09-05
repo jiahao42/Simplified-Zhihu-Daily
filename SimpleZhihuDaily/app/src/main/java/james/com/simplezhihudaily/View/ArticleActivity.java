@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -25,9 +26,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import james.com.simplezhihudaily.Model.StoryExtra;
 import james.com.simplezhihudaily.Model.Symbol;
 import james.com.simplezhihudaily.Model.Url;
@@ -39,7 +37,7 @@ import static android.media.CamcorderProfile.get;
 
 public class ArticleActivity extends Activity {
     private Intent intent;
-    private String id;
+    private String idOfArticle;
     private RequestQueue mQueue;
     private WebView article;
     private String cssUrl;
@@ -80,7 +78,7 @@ public class ArticleActivity extends Activity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                htmlString = zhihuDailyDB.getArticle(id);
+                htmlString = zhihuDailyDB.getArticle(idOfArticle);
                 if (htmlString != null)
                 {
                     Message message = new Message();
@@ -90,7 +88,7 @@ public class ArticleActivity extends Activity {
                 } else
                 {
                     Log.d("aboutDB","get_article_fromNET");
-                    JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Url.getArticleContent + id, null, new Response.Listener<JSONObject>() {
+                    JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Url.getArticleContent + idOfArticle, null, new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
                             try
@@ -99,9 +97,9 @@ public class ArticleActivity extends Activity {
                             /*
                             此处也要判断 若id对应的content不为空 则不用插入
                              */
-                                if (!zhihuDailyDB.hasContent(id))
+                                if (!zhihuDailyDB.hasContent(idOfArticle))
                                 {
-                                    zhihuDailyDB.insertContent(id, htmlString);
+                                    zhihuDailyDB.insertContent(idOfArticle, htmlString);
                                 }
                                 cssUrl = response.getString("css");
                                 Message message = new Message();
@@ -139,8 +137,8 @@ public class ArticleActivity extends Activity {
         mQueue = Volley.newRequestQueue(articleActivity);
         gson = new Gson();
         intent = getIntent();
-        Bundle bundle = intent.getBundleExtra("id");
-        id = bundle.getString("id");
+        Bundle bundle = intent.getBundleExtra("idOfArticle");
+        idOfArticle = bundle.getString("idOfArticle");
         article.getSettings().setAppCacheEnabled(true);// 设置启动缓存
         article.getSettings().getDomStorageEnabled();
         article.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
@@ -155,7 +153,20 @@ public class ArticleActivity extends Activity {
                 }
             }
         });
+        initListener();
         zhihuDailyDB = ZhihuDailyDB.getInstance(articleActivity);
+    }
+    private void initListener(){
+        comments.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Bundle bundle = new Bundle();
+                bundle.putString("idOfArticle",idOfArticle);
+                Intent intent = new Intent(articleActivity,CommentActivity.class);
+                intent.putExtra("id",bundle);
+                startActivity(intent);
+            }
+        });
     }
 
     /**
@@ -171,7 +182,9 @@ public class ArticleActivity extends Activity {
                 img.attr("width","100%").attr("height","auto");
             }
         }
-        article.loadDataWithBaseURL("file:///android_asset/.",document.toString(),"text/html; charset=UTF-8", null,null);
+        htmlString = document.toString();
+        htmlString = "<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\" />" + htmlString;
+        article.loadDataWithBaseURL("file:///android_asset/",htmlString,"text/html; charset=UTF-8", null,null);
     }
 
     /**
@@ -186,7 +199,7 @@ public class ArticleActivity extends Activity {
      *      ***** 短评论内容 *****
      *      comments : 长评论列表，形式为数组（请注意，其长度可能为 0）
      *      author : 评论作者
-     *      id : 评论者的唯一标识符
+     *      idOfArticle : 评论者的唯一标识符
      *      content : 评论的内容
      *      likes : 评论所获『赞』的数量
      *      time : 评论时间
@@ -211,7 +224,7 @@ public class ArticleActivity extends Activity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Url.getStoryExtra + id, null, new Response.Listener<JSONObject>() {
+                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Url.getStoryExtra + idOfArticle, null, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         storyExtra = gson.fromJson(response.toString(), StoryExtra.class);

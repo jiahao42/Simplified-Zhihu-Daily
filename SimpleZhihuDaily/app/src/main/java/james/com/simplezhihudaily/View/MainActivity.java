@@ -96,11 +96,10 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
     private float deviceHeight;
     public Spinner spinner;
     public static Theme[] themes;
-    private List<String> spinnerList;
+    public static List<String> spinnerList;
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
     private String [] themePics;
-
 
     private boolean mIsShowTitle = false;
     private float mTranslateY;
@@ -292,6 +291,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                         Log.d("MainActivity", "server_error");
                     }
                 });
+                jsonObjectRequest.setShouldCache(true);
                 mQueue.add(jsonObjectRequest);
                 mQueue.start();
             }
@@ -368,6 +368,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                         getThemeHandler.sendMessage(message);
                     }
                 });
+                jsonObjectRequest.setShouldCache(true);
                 mQueue.add(jsonObjectRequest);
                 mQueue.start();
             }
@@ -400,7 +401,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                         public void onResponse(Bitmap response) {
                             themes[count].setBitmap(response);
                         }
-                    }, 0, 0, ImageView.ScaleType.CENTER, Bitmap.Config.RGB_565, new Response.ErrorListener() {
+                    }, 0, 0, ImageView.ScaleType.FIT_XY, Bitmap.Config.RGB_565, new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
                             Message message = new Message();
@@ -408,6 +409,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                             handler.sendMessage(message);
                         }
                     });
+                    imageRequest.setShouldCache(true);
                     mQueue.add(imageRequest);
                     mQueue.start();
                 }
@@ -592,6 +594,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                             Log.d("getPics", "server_error");
                         }
                     });
+                    imageRequest.setShouldCache(true);
                     mQueue.add(imageRequest);
                     //Log.d("imageRequest", "added" + count);
                 }
@@ -622,6 +625,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                             Log.d("getPics", "server_error");
                         }
                     });
+                    imageRequest.setShouldCache(true);
                     mQueue.add(imageRequest);
                     //Log.d("imageRequest", "added" + count);
                 }
