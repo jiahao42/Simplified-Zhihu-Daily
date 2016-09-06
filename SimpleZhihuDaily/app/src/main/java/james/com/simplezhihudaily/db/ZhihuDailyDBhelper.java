@@ -4,8 +4,6 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import static james.com.simplezhihudaily.View.MainActivity.themes;
-
 public class ZhihuDailyDBhelper extends SQLiteOpenHelper {
     //create province
     private static final String COLUMN_TITLE = "title";
@@ -39,6 +37,23 @@ public class ZhihuDailyDBhelper extends SQLiteOpenHelper {
             + COLUMN_IMG_THEME + " text, "
             + COLUMN_NAME_THEME + " text not null)";
 
+    /**
+     * 这个表用来存储文章所有的评论信息
+     */
+    private static final String COLUMN_COMMENT_AUTHOR = "author";
+    private static final String COLUMN_COMMENT_CONTENT = "content";
+    private static final String COLUMN_COMMENT_AVATAR = "avatar";
+    private static final String COLUMN_COMMENT_TIME = "time";
+    private static final String COLUMN_COMMENT_LIKES = "likes";
+    public static final String TABLE_NAME_COMMENT = "CommentTable";
+    private static final String COLUMN_COMMENT_ID = "id";
+    private static final String CREATE_TABLE_COMMENT = "create table " + TABLE_NAME_COMMENT + " ( "
+            + COLUMN_COMMENT_ID + " int not null unique, "
+            + COLUMN_COMMENT_AUTHOR + " text not null, "
+            + COLUMN_COMMENT_AVATAR + " text, "
+            + COLUMN_COMMENT_CONTENT + " text not null, "
+            + COLUMN_COMMENT_TIME + " text not null, "
+            + COLUMN_COMMENT_LIKES + " int not null) ";
 
     public ZhihuDailyDBhelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
@@ -53,6 +68,7 @@ public class ZhihuDailyDBhelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(CREATE_TABLE);
         db.execSQL(CREATE_TABLE_THEME);
+        db.execSQL(CREATE_TABLE_COMMENT);
     }
 
     @Override

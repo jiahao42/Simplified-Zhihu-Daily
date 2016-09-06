@@ -4,6 +4,10 @@ import android.graphics.Bitmap;
 
 import com.google.gson.annotations.SerializedName;
 
+import james.com.simplezhihudaily.Util.Util;
+
+import static james.com.simplezhihudaily.Util.Util.parseDate;
+
 /**
  * comments : 长评论列表，形式为数组（请注意，其长度可能为 0）
  author : 评论作者
@@ -25,6 +29,16 @@ public class Comment {
     @SerializedName("avatar")
     private String avatar;
     private Bitmap bitmap;
+    private int id;
+
+    public Comment(){}
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public Bitmap getBitmap() {
         return bitmap;
@@ -71,7 +85,9 @@ public class Comment {
     }
 
     public void setTime(String time) {
+        time = Util.parseDate(time);
         this.time = time;
+
     }
 
     public String getAvatar() {
@@ -80,5 +96,18 @@ public class Comment {
 
     public void setAvatar(String avatar) {
         this.avatar = avatar;
+    }
+
+    @Override
+    public String toString() {
+        return "Comment{" +
+                "author='" + author + '\'' +
+                ", content='" + content + '\'' +
+                ", likes='" + likes + '\'' +
+                ", time='" + time + '\'' +
+                ", avatar='" + avatar + '\'' +
+                ", bitmap=" + bitmap +
+                ", id=" + id +
+                '}';
     }
 }

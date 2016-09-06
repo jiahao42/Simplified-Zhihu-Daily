@@ -262,7 +262,7 @@ public class ThemeFrameActivity extends Activity{
                 Toast.makeText(mainActivity, story.getTitle(), Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(mainActivity, ArticleActivity.class);
                 Bundle bundle = new Bundle();
-                bundle.putString("id", String.valueOf(story.getId()));
+                bundle.putString("idOfArticle", String.valueOf(story.getId()));
                 intent.putExtra("id", bundle);
                 startActivity(intent);
 

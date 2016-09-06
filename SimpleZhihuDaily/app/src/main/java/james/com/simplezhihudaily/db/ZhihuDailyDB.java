@@ -9,6 +9,7 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
+import james.com.simplezhihudaily.Model.Comment;
 import james.com.simplezhihudaily.Model.Story;
 import james.com.simplezhihudaily.Model.Symbol;
 import james.com.simplezhihudaily.Model.Theme;
@@ -354,6 +355,52 @@ public class ZhihuDailyDB {
         }while (cursor.moveToNext());
         cursor.close();
         return list;
+    }
+
+    /**
+     * 下面是管理 评论Comment 的方法
+     */
+
+    public boolean isCommentInserted(String id){
+        Cursor cursor = db.query(ZhihuDailyDBhelper.TABLE_NAME_COMMENT,null,"id = ?",new String[]{id},null,null,null);
+        cursor.moveToFirst();
+        if (cursor.getCount() == 0){
+            cursor.close();
+            return false;
+        }else {
+            cursor.close();
+            return true;
+        }
+    }
+
+    public void saveComments(Comment comment){
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("author",comment.getAuthor());
+        contentValues.put("avatar",comment.getAvatar());
+        contentValues.put("time",comment.getTime());
+        contentValues.put("content",comment.getContent());
+        contentValues.put("likes",comment.getLikes());
+        contentValues.put("id",comment.getId());
+        db.insert(ZhihuDailyDBhelper.TABLE_NAME_COMMENT,null,contentValues);
+    }
+
+    public List<Comment> getComments(String id){
+        Cursor cursor = db.query(ZhihuDailyDBhelper.TABLE_NAME_COMMENT,null,"id = ?",new String[]{id},null,null,null);
+        List<Comment> comments = new ArrayList<>();
+        cursor.moveToFirst();
+        do
+        {
+            Comment comment = new Comment();
+            comment.setAuthor(cursor.getString(cursor.getColumnIndex("author")));
+            comment.setAvatar(cursor.getString(cursor.getColumnIndex("avatar")));
+            comment.setContent(cursor.getString(cursor.getColumnIndex("content")));
+            comment.setId(cursor.getInt(cursor.getColumnIndex("id")));
+            comment.setLikes(cursor.getString(cursor.getColumnIndex("likes")));
+            comment.setTime(cursor.getString(cursor.getColumnIndex("time")));
+            comments.add(comment);
+        }while (cursor.moveToNext());
+        cursor.close();
+        return comments;
     }
 
 }

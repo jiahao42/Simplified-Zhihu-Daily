@@ -1,43 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
-<TextView
-    android:layout_width="match_parent"
-    android:layout_height="40dp"
-    android:textSize="25sp"
-    android:gravity="center_vertical"
-    android:layout_marginTop="10dp"
-    android:drawableRight="@drawable/write_comment"
-    android:layout_marginLeft="10dp"
-    android:id="@+id/number_of_comments"
-    android:text="加载中..."/>
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:textSize="25sp"
+            android:gravity="center_vertical"
+            android:layout_marginTop="10dp"
+            android:drawableRight="@drawable/write_comment"
+            android:layout_marginLeft="10dp"
+            android:id="@+id/number_of_comments"
+            android:text="加载中..."/>
 
-    <TextView
-        android:layout_width="match_parent"
-        android:textSize="25sp"
-        android:id="@+id/number_of_long_comments"
-        android:layout_marginLeft="10dp"
-        android:text="加载中..."
-        android:layout_height="40dp"/>
-    <ListView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/long_comments">
-    </ListView>
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:text="加载中..."
-        android:id="@+id/number_of_short_comments"
-        android:layout_marginTop="10dp"
-        android:textSize="25sp"
-        android:layout_marginLeft="10dp"
-        />
-    <ListView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/short_comments">
-    </ListView>
-</LinearLayout>
+        <TextView
+            android:layout_width="match_parent"
+            android:textSize="25sp"
+            android:id="@+id/number_of_long_comments"
+            android:layout_marginLeft="10dp"
+            android:text="加载中..."
+            android:layout_height="40dp"/>
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/long_comments">
+        </ListView>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:text="加载中..."
+            android:id="@+id/number_of_short_comments"
+            android:layout_marginTop="10dp"
+            android:textSize="25sp"
+            android:layout_marginLeft="10dp"
+            />
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/short_comments">
+        </ListView>
+    </LinearLayout>
+</ScrollView>

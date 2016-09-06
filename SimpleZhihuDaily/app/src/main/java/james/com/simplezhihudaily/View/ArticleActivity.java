@@ -137,7 +137,7 @@ public class ArticleActivity extends Activity {
         mQueue = Volley.newRequestQueue(articleActivity);
         gson = new Gson();
         intent = getIntent();
-        Bundle bundle = intent.getBundleExtra("idOfArticle");
+        Bundle bundle = intent.getBundleExtra("id");
         idOfArticle = bundle.getString("idOfArticle");
         article.getSettings().setAppCacheEnabled(true);// 设置启动缓存
         article.getSettings().getDomStorageEnabled();
@@ -162,6 +162,7 @@ public class ArticleActivity extends Activity {
             public void onClick(View view) {
                 Bundle bundle = new Bundle();
                 bundle.putString("idOfArticle",idOfArticle);
+                bundle.putString("sumOfComments",String .valueOf(storyExtra.getSumOfComment()));
                 Intent intent = new Intent(articleActivity,CommentActivity.class);
                 intent.putExtra("id",bundle);
                 startActivity(intent);
@@ -224,25 +225,25 @@ public class ArticleActivity extends Activity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Url.getStoryExtra + idOfArticle, null, new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        storyExtra = gson.fromJson(response.toString(), StoryExtra.class);
-                        Log.d("storyExtra",storyExtra.toString());
-                        Message message = new Message();
-                        message.what = Symbol.RECEIVE_SUCCESS;
-                        getStoryExtra.sendMessage(message);
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Message message = new Message();
-                        message.what = Symbol.RECEIVER_FAILED;
-                        getStoryExtra.sendMessage(message);
-                    }
-                });
-                mQueue.add(jsonObjectRequest);
-                mQueue.start();
+                    JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Url.getStoryExtra + idOfArticle, null, new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            storyExtra = gson.fromJson(response.toString(), StoryExtra.class);
+                            Log.d("storyExtra", storyExtra.toString());
+                            Message message = new Message();
+                            message.what = Symbol.RECEIVE_SUCCESS;
+                            getStoryExtra.sendMessage(message);
+                        }
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Message message = new Message();
+                            message.what = Symbol.RECEIVER_FAILED;
+                            getStoryExtra.sendMessage(message);
+                        }
+                    });
+                    mQueue.add(jsonObjectRequest);
+                    mQueue.start();
             }
         }).start();
     }

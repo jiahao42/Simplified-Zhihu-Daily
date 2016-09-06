@@ -11,7 +11,7 @@ public abstract class BaseStory {
     protected int id;
     @SerializedName("ga_prefix")
     int ga_prefix;
-    @SerializedName("content")
+    @SerializedName("title")
     protected String title;
     @SerializedName("multipic")
     boolean multipic;
