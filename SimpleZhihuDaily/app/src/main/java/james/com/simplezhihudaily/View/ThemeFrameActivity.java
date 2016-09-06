@@ -277,5 +277,4 @@ public class ThemeFrameActivity extends Activity{
         this.finish();
     }
 
-
 }

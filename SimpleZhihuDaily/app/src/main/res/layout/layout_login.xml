@@ -1,33 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
-<EditText
-    android:layout_width="match_parent"
-    android:layout_height="50dp"
-    android:hint="username"
-    android:id="@+id/username"
-    android:layout_marginTop="100dp"
-    />
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:background="#426aec">
+
     <EditText
-        android:layout_width="match_parent"
+
+        android:id="@+id/username"
+        android:layout_width="240dp"
         android:layout_height="50dp"
-        android:layout_marginTop="10dp"
-        android:id="@+id/password"/>
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:hint="checksum"
-        android:id="@+id/input_checksum"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="180dp"
+        android:gravity="center"
+        android:hint="请输入账号"
         />
+
+    <EditText
+        android:id="@+id/password"
+        android:layout_width="240dp"
+        android:layout_height="50dp"
+        android:gravity="center"
+        android:layout_below="@+id/username"
+        android:layout_centerHorizontal="true"
+        android:inputType="textPassword"
+        android:layout_marginTop="10dp"
+        android:hint="请输入密码"/>
+
+    <EditText
+        android:id="@+id/input_checksum"
+        android:layout_width="150dp"
+        android:layout_height="50dp"
+        android:gravity="left"
+        android:layout_marginLeft="40dp"
+        android:layout_below="@+id/password"
+        android:layout_marginTop="10dp"
+        android:hint="请输入验证码"
+        />
+
     <ImageView
-        android:layout_width="300dp"
-        android:layout_height="150dp"
-        android:id="@+id/checksum"/>
+        android:id="@+id/checksum"
+        android:layout_width="140dp"
+        android:layout_height="60dp"
+        android:layout_marginLeft="40dp"
+        android:src="@drawable/error"
+        android:layout_below="@id/password"
+        android:layout_marginRight="20dp"
+        android:layout_toRightOf="@id/input_checksum"
+        android:layout_centerHorizontal="true"/>
+
     <Button
+        android:id="@+id/login"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/login"
+        android:layout_below="@+id/checksum"
+        android:layout_centerHorizontal="true"
         android:text="Login"/>
-</LinearLayout>
+</RelativeLayout>
