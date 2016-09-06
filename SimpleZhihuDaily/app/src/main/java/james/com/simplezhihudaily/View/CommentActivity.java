@@ -35,6 +35,7 @@ import james.com.simplezhihudaily.Model.Url;
 import james.com.simplezhihudaily.R;
 import james.com.simplezhihudaily.db.ZhihuDailyDB;
 
+import static android.R.id.message;
 import static james.com.simplezhihudaily.R.drawable.error;
 import static james.com.simplezhihudaily.Util.Util.ListUtils.setDynamicHeight;
 
@@ -104,9 +105,15 @@ public class CommentActivity extends Activity {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                /**
+                 * 优先从数据库读
+                 */
                 if (zhihuDailyDB.isCommentInserted(idOfArticle))
                 {
-
+                    long_comments = zhihuDailyDB.getComments(idOfArticle,Symbol.LongComment);
+                    longCommentAdapter.notifyDataSetChanged();
+                    short_comments = zhihuDailyDB.getComments(idOfArticle,Symbol.ShortComment);
+                    shortCommentAdapter.notifyDataSetChanged();
                 } else
                 {
                     JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Url.getComment + idOfArticle + "/long-comments", null, new Response.Listener<JSONObject>() {
@@ -121,6 +128,9 @@ public class CommentActivity extends Activity {
                                 //if (!string.equals("[]"))
                                 Log.d("Comment", string);
                                 Comment[] temp = gson.fromJson(string, Comment[].class);
+                                for (Comment comment:temp){
+                                    comment.processTime();
+                                }
                                 numberOfLongComments = temp.length;
                                 String tempString = numberOfLongComments + "条长评";
                                 numberOfLongCommentsText.setText(tempString);
@@ -130,6 +140,10 @@ public class CommentActivity extends Activity {
                                 longCommentListView.setAdapter(longCommentAdapter);
                                 setDynamicHeight(longCommentListView);
                                 longCommentAdapter.notifyDataSetChanged();//先notify一下 让文字先显示出来 再去请求图片
+                                for (Comment comment : long_comments){
+                                    comment.setType(Symbol.LongComment);
+                                    zhihuDailyDB.saveComments(comment);
+                                }
                                 Message message = new Message();
                                 message.what = Symbol.RECEIVE_SUCCESS;
                                 handler.sendMessage(message);
@@ -163,6 +177,9 @@ public class CommentActivity extends Activity {
                             string = response.getString("comments");
                             //if (!string.equals("[]")
                             Comment[] temp = gson.fromJson(string, Comment[].class);
+                            for (Comment comment:temp){
+                                comment.processTime();
+                            }
                             Log.d("Comment", temp[0].toString());
                             numberOfShortComments = temp.length;
                             String tempString = numberOfShortComments + "条短评";
@@ -173,6 +190,10 @@ public class CommentActivity extends Activity {
                             shortCommentListView.setAdapter(shortCommentAdapter);
                             setDynamicHeight(shortCommentListView);
                             shortCommentAdapter.notifyDataSetChanged();//先notify一下 让文字先显示出来 再去请求图片
+                            for (Comment comment : short_comments){
+                                comment.setType(Symbol.ShortComment);
+                                zhihuDailyDB.saveComments(comment);
+                            }
                             Message message = new Message();
                             message.what = Symbol.RECEIVE_SUCCESS;
                             handler.sendMessage(message);

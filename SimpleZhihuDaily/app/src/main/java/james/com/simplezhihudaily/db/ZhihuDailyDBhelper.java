@@ -47,13 +47,15 @@ public class ZhihuDailyDBhelper extends SQLiteOpenHelper {
     private static final String COLUMN_COMMENT_LIKES = "likes";
     public static final String TABLE_NAME_COMMENT = "CommentTable";
     private static final String COLUMN_COMMENT_ID = "id";
+    private static final String COLUMN_COMMENT_TYPE = "type";
     private static final String CREATE_TABLE_COMMENT = "create table " + TABLE_NAME_COMMENT + " ( "
             + COLUMN_COMMENT_ID + " int not null unique, "
             + COLUMN_COMMENT_AUTHOR + " text not null, "
             + COLUMN_COMMENT_AVATAR + " text, "
             + COLUMN_COMMENT_CONTENT + " text not null, "
             + COLUMN_COMMENT_TIME + " text not null, "
-            + COLUMN_COMMENT_LIKES + " int not null) ";
+            + COLUMN_COMMENT_LIKES + " int not null, "
+            + COLUMN_COMMENT_TYPE + " int not null ) ";
 
     public ZhihuDailyDBhelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);

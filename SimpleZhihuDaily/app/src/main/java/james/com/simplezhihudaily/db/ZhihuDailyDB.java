@@ -16,6 +16,8 @@ import james.com.simplezhihudaily.Model.Theme;
 import james.com.simplezhihudaily.Model.ThemeStory;
 import james.com.simplezhihudaily.Model.TopStory;
 
+import static android.R.attr.id;
+
 
 public class ZhihuDailyDB {
     //db name
@@ -381,15 +383,23 @@ public class ZhihuDailyDB {
         contentValues.put("content",comment.getContent());
         contentValues.put("likes",comment.getLikes());
         contentValues.put("id",comment.getId());
+        contentValues.put("type",comment.getType());
         db.insert(ZhihuDailyDBhelper.TABLE_NAME_COMMENT,null,contentValues);
     }
 
-    public List<Comment> getComments(String id){
-        Cursor cursor = db.query(ZhihuDailyDBhelper.TABLE_NAME_COMMENT,null,"id = ?",new String[]{id},null,null,null);
+    /**
+     * 取得数据库中的评论信息
+     * @param id    文章ID
+     * @param type  评论种类（长/短）
+     * @return  评论列表
+     */
+    public List<Comment> getComments(String id,int type){
+        Cursor cursor = db.query(ZhihuDailyDBhelper.TABLE_NAME_COMMENT,null,"id = ? AND type = ? ",new String[]{id,String.valueOf(type)},null,null,null);
         List<Comment> comments = new ArrayList<>();
         cursor.moveToFirst();
         do
         {
+            Log.d("Comments","Comment from db");
             Comment comment = new Comment();
             comment.setAuthor(cursor.getString(cursor.getColumnIndex("author")));
             comment.setAvatar(cursor.getString(cursor.getColumnIndex("avatar")));

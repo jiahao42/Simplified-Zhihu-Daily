@@ -26,6 +26,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.IOException;
+
 import james.com.simplezhihudaily.Model.StoryExtra;
 import james.com.simplezhihudaily.Model.Symbol;
 import james.com.simplezhihudaily.Model.Url;
@@ -107,6 +109,18 @@ public class ArticleActivity extends Activity {
                                 handler.sendMessage(message);
                             } catch (JSONException e)
                             {
+                                /**
+                                 * 有时候会出现 没有body的情况 此时只有一个sharedURL
+                                 * 处理一下
+                                 */
+                                try
+                                {
+                                    htmlString = response.getString("share_url");
+                                    getQuotedArticle(htmlString);
+                                } catch (JSONException e1)
+                                {
+                                    e1.printStackTrace();
+                                }
                                 e.printStackTrace();
                             }
                         }
@@ -186,6 +200,39 @@ public class ArticleActivity extends Activity {
         htmlString = document.toString();
         htmlString = "<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\" />" + htmlString;
         article.loadDataWithBaseURL("file:///android_asset/",htmlString,"text/html; charset=UTF-8", null,null);
+    }
+
+    /**
+     * 这里之所以要用handler 看起来多此一举
+     * 实际上是因为 不允许在子线程中调度WebView
+     * @param html  link to the site
+     */
+    private void getQuotedArticle(final String html){
+        final Handler handler = new Handler(){
+            @Override
+            public void handleMessage(Message message){
+                if (message.what == Symbol.RECEIVE_SUCCESS){
+                    zoomPicture();
+                }
+            }
+        };
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Document document = null;
+                try
+                {
+                    document = Jsoup.connect(html).get();
+                } catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
+                htmlString = document.toString();
+                Message message = new Message();
+                message.what = Symbol.RECEIVE_SUCCESS;
+                handler.sendMessage(message);
+            }
+        }).start();
     }
 
     /**

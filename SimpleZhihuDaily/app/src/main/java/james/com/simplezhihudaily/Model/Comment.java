@@ -30,6 +30,18 @@ public class Comment {
     private String avatar;
     private Bitmap bitmap;
     private int id;
+    /**
+     * 0为长评论 1为短评论
+     */
+    private int type;
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
 
     public Comment(){}
     public int getId() {
@@ -83,9 +95,13 @@ public class Comment {
     public String getTime() {
         return time;
     }
+    public void processTime(){
+        int temp = Integer.parseInt(time);
+        time = Util.paserTime(temp);
+    }
 
     public void setTime(String time) {
-        time = Util.parseDate(time);
+        //time = Util.parseDate(time);
         this.time = time;
 
     }

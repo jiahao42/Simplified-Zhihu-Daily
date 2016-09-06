@@ -29,6 +29,11 @@ public class Symbol{
      * 主题文章的标识
      */
     public static final int ThemeStory = 2;
+    /**
+     * 评论的标识
+     */
+    public static final int LongComment = 0;
+    public static final int ShortComment = 1;
 }
 /*
 Enum类在这里似乎是画蛇添足
