@@ -38,7 +38,7 @@ public class Url {
     /**
      * 获取登录的验证码
      */
-    public static final String getCheckSum = "http://www.zhihu.com/captcha.gif?r=时间戳";
+    public static final String getCheckSum = "https://www.zhihu.com/captcha.gif?r=1466595391805&type=login";
     /**
      * 通过email登录
      */

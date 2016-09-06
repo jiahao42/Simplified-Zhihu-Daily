@@ -324,10 +324,9 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                     getThemePics();
                 } else
                 {//没请求到数据则直接到本地取
-                    int count = sharedPreferences.getInt("sum", 0);
                     List<Theme> list = new ArrayList<>();
                     list.addAll(zhihuDailyDB.getTheme());
-                    for (int i = 0; i < count; i++)
+                    for (int i = 0; i < list.size(); i++)
                     {
                         spinnerList.add(list.get(i).getName());
                     }
