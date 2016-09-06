@@ -65,6 +65,7 @@ import static james.com.simplezhihudaily.R.drawable.error;
  * 6.写设置界面，比如可以选择3G情况下不自动加载图片等
  * 7.要做推送消息功能（总之要实践Service和Broadcast!!!)
  * 8.分享功能
+ * 9.持久化Cookie
  */
 
 // TODO: 2016/9/3 还没有给TopStory添加链接 无法通过它进入文章

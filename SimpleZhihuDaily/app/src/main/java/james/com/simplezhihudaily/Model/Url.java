@@ -31,4 +31,16 @@ public class Url {
      * 加上栏目id即可得到栏目信息
      */
     public static final String getThemeStory = "http://news-at.zhihu.com/api/4/theme/";
+    /**
+     * 获取XSRF值的链接
+     */
+    public static final String getXSRF = "https://www.zhihu.com";
+    /**
+     * 获取登录的验证码
+     */
+    public static final String getCheckSum = "http://www.zhihu.com/captcha.gif?r=时间戳";
+    /**
+     * 通过email登录
+     */
+    public static final String loginByMail = "http://www.zhihu.com/login/email";
 }
