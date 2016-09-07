@@ -36,7 +36,6 @@ import james.com.simplezhihudaily.Model.Url;
 import james.com.simplezhihudaily.R;
 import james.com.simplezhihudaily.Util.Util;
 
-import static james.com.simplezhihudaily.Model.RegexForZhihu.getXSRF;
 import static james.com.simplezhihudaily.Model.Url.zhihuOfficial;
 import static james.com.simplezhihudaily.View.MainActivity.mainActivity;
 
@@ -70,17 +69,18 @@ public class LoginActivity extends Activity implements View.OnClickListener {
         usernameText = (EditText) findViewById(R.id.username);
         passwordText = (EditText) findViewById(R.id.password);
         checksumBox = (EditText) findViewById(R.id.captcha_input);
+        captchaImage = (Button) findViewById(R.id.captcha);
         login = (Button) findViewById(R.id.login);
         login.setOnClickListener(this);
-        captchaImage = (Button) findViewById(R.id.captcha);
+        captchaImage.setOnClickListener(this);
         loginActivity = this;
-        sharedPreferences = getSharedPreferences("Cookie",MODE_PRIVATE);
-        accountEditor = getSharedPreferences("Account",MODE_PRIVATE).edit();
-        account = getSharedPreferences("Account",MODE_PRIVATE);
-        cookieEditor = getSharedPreferences("Cookie",MODE_PRIVATE).edit();
+        sharedPreferences = getSharedPreferences("Cookie", MODE_PRIVATE);
+        accountEditor = getSharedPreferences("Account", MODE_PRIVATE).edit();
+        account = getSharedPreferences("Account", MODE_PRIVATE);
+        cookieEditor = getSharedPreferences("Cookie", MODE_PRIVATE).edit();
         mQueue = Volley.newRequestQueue(loginActivity);
-        username = account.getString("username","");
-        password = account.getString("password","");
+        username = account.getString("username", "");
+        password = account.getString("password", "");
         usernameText.setText(username);
         passwordText.setText(password);
         gson = new Gson();
@@ -94,13 +94,13 @@ public class LoginActivity extends Activity implements View.OnClickListener {
                 captchaString = checksumBox.getText().toString();
                 username = usernameText.getText().toString();
                 password = passwordText.getText().toString();
-                accountEditor.putString("username",username);
-                accountEditor.putString("password",password);
+                accountEditor.putString("username", username);
+                accountEditor.putString("password", password);
                 accountEditor.apply();
                 fetchXSRF();
                 break;
             case R.id.captcha:
-                Log.d("Login","changing captcha");
+                Log.d("Login", "changing captcha");
                 getCheckSum();
 
         }
@@ -140,7 +140,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
             public void handleMessage(Message message) {
                 if (message.what == Symbol.RECEIVE_SUCCESS)
                 {
-                    Log.d("Login","Loading");
+                    Log.d("Login", "Loading");
                     login();
                 }
             }
@@ -173,17 +173,19 @@ public class LoginActivity extends Activity implements View.OnClickListener {
     }
 
     private void login() {
-        final Handler handler = new Handler(){
+        final Handler handler = new Handler() {
             @Override
-            public void handleMessage(Message message){
-                if (message.what == Symbol.RECEIVE_SUCCESS){
-                    Toast.makeText(loginActivity,"登录成功",Toast.LENGTH_SHORT).show();
+            public void handleMessage(Message message) {
+                if (message.what == Symbol.RECEIVE_SUCCESS)
+                {
+                    Toast.makeText(loginActivity, "登录成功", Toast.LENGTH_SHORT).show();
                     //Intent intent = new Intent(loginActivity,MainActivity.class);
                     //startActivity(intent);
                     mainActivity.spinner.setSelection(0);
                     loginActivity.finish();
-                }else {
-                    Toast.makeText(loginActivity,"登录失败,请重试",Toast.LENGTH_SHORT).show();
+                } else
+                {
+                    Toast.makeText(loginActivity, "登录失败,请重试", Toast.LENGTH_SHORT).show();
                     passwordText.setText("");
                     checksumBox.setText("");
                 }
@@ -198,13 +200,13 @@ public class LoginActivity extends Activity implements View.OnClickListener {
                             data("_xsrf", XSRF,
                                     "captcha", captchaString,
                                     "email", username,
-                                    "password",password,
-                                    "remember_me","true")
+                                    "password", password,
+                                    "remember_me", "true")
                             .header("User-Agent",
                                     "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36")
                             .ignoreContentType(true)
                             .method(Connection.Method.POST).execute();
-                    Log.d("StatusCode",String .valueOf(response.statusCode()));
+                    Log.d("StatusCode", String.valueOf(response.statusCode()));
                     if (response.statusCode() == 200)
                     {
                         Document document = response.parse();
@@ -218,7 +220,8 @@ public class LoginActivity extends Activity implements View.OnClickListener {
                         handler.sendMessage(message);
                         //Log.d("Login_cookies",response.cookies().toString());
                         //Log.d("Login_sessionId",sessionId);
-                    }else {
+                    } else
+                    {
                         Message message = new Message();
                         message.what = Symbol.RECEIVER_FAILED;
                         handler.sendMessage(message);
@@ -231,6 +234,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
             }
         }).start();
     }
+
     @Override
     public void onBackPressed() {
         mainActivity.spinner.setSelection(Util.safeLongToInt(0));//将spinner变回

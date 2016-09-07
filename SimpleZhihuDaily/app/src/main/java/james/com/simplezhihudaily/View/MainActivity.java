@@ -8,9 +8,9 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Bundle;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
@@ -71,7 +71,7 @@ import static james.com.simplezhihudaily.R.drawable.error;
 // TODO: 2016/9/3 还没有给TopStory添加链接 无法通过它进入文章
 
 
-public class MainActivity extends Activity implements AdapterView.OnItemSelectedListener ,View.OnClickListener{
+public class MainActivity extends Activity implements AdapterView.OnItemSelectedListener, View.OnClickListener {
     private List<Story> StoryList = new ArrayList<>();
     private TopStory[] topStories;
     private String[] storyPicUrls;
@@ -100,7 +100,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
     public static List<String> spinnerList;
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
-    private String [] themePics;
+    private String[] themePics;
 
     private boolean mIsShowTitle = false;
     private float mTranslateY;
@@ -301,7 +301,6 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
 
     /**
      * 获取栏目名称
-     *
      */
     private void getThemes() {
         final Handler getThemeHandler = new Handler() {
@@ -319,7 +318,8 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                         spinnerList.add(theme.getName());
                     }
                     themePics = new String[themes.length];
-                    for (int i = 0; i < themes.length; i++){
+                    for (int i = 0; i < themes.length; i++)
+                    {
                         themePics[i] = themes[i].getUrl();
                     }
                     getThemePics();
@@ -346,7 +346,8 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                         {
                             themes = gson.fromJson(response.getString("others"), Theme[].class);
                             int count = 0;
-                            if (zhihuDailyDB.howManyThemeInDB() != 0){
+                            if (zhihuDailyDB.howManyThemeInDB() != 0)
+                            {
                                 for (int i = 0; i < themes.length; i++)
                                 {
                                     zhihuDailyDB.saveThemes(themes[i]);
@@ -376,14 +377,17 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
         }).start();
     }
 
-    private void getThemePics(){
-        final Handler handler = new Handler(){
+    private void getThemePics() {
+        final Handler handler = new Handler() {
             @Override
-            public void handleMessage(Message message){
-                if (message.what == Symbol.RECEIVE_SUCCESS){
+            public void handleMessage(Message message) {
+                if (message.what == Symbol.RECEIVE_SUCCESS)
+                {
 
-                }else {
-                    for(Theme theme:themes){
+                } else
+                {
+                    for (Theme theme : themes)
+                    {
                         Bitmap icon = BitmapFactory.decodeResource(mainActivity.getResources(),
                                 R.drawable.error);
                         theme.setBitmap(icon);
@@ -395,7 +399,8 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
         new Thread(new Runnable() {
             @Override
             public void run() {
-                for (int i = 0;i < themes.length; i++){
+                for (int i = 0; i < themes.length; i++)
+                {
                     final int count = i;
                     ImageRequest imageRequest = new ImageRequest(themes[i].getUrl(), new Response.Listener<Bitmap>() {
                         @Override
@@ -453,19 +458,25 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
             Intent intent;
             String desc;
             // TODO: 2016/9/5 有时间要去掉硬编码
-            switch (itemString){
+            switch (itemString)
+            {
                 case "今日热闻":
                     break;
                 case "我的设置":
-                    intent = new Intent(mainActivity,SettingActivity.class);
+                    intent = new Intent(mainActivity, SettingActivity.class);
                     startActivity(intent);
                     break;
                 case "登录/注册":
-                    intent = new Intent(mainActivity,LoginActivity.class);
+                    intent = new Intent(mainActivity, LoginActivity.class);
                     startActivity(intent);
                     break;
                 case "个人信息":
-                    intent = new Intent(mainActivity,ProfileActivity.class);
+                    if (Symbol.cookie == null)
+                    {
+                        Toast.makeText(mainActivity, "请先登录", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    intent = new Intent(mainActivity, ProfileActivity.class);
                     startActivity(intent);
                     break;
                 case "日常心理学":
@@ -526,29 +537,33 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
 
     /**
      * 跳到专栏界面
+     *
      * @param index 数组下标
      */
-    private void jumpToThemeFrame(int index){
+    private void jumpToThemeFrame(int index) {
         Bundle bundle;
         Intent intent;
         bundle = new Bundle();
-        bundle.putString("desc",themes[index].getDescription());
-        bundle.putString("name",themes[index].getName());
-        bundle.putParcelable("bitmap",themes[index].getBitmap());
-        intent = new Intent(mainActivity,ThemeFrameActivity.class);
-        intent.putExtra("id",bundle);
+        bundle.putString("desc", themes[index].getDescription());
+        bundle.putString("name", themes[index].getName());
+        bundle.putParcelable("bitmap", themes[index].getBitmap());
+        intent = new Intent(mainActivity, ThemeFrameActivity.class);
+        intent.putExtra("id", bundle);
         startActivity(intent);
     }
 
     /**
      * 通过标题栏目返回该标题在数组中的下标
-     * @param name  栏目名
-     * @return  下标
+     *
+     * @param name 栏目名
+     * @return 下标
      */
-    private int getThemeIndex(String name){
+    private int getThemeIndex(String name) {
         int index = 0;
-        for (int i = 0; i < themes.length;i++){
-            if (themes[i].getName().equals(name)){
+        for (int i = 0; i < themes.length; i++)
+        {
+            if (themes[i].getName().equals(name))
+            {
                 index = i;
                 break;
             }
@@ -676,19 +691,19 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
         //Symbol.cookie = cookie.getString("Cookie","");
 
 
-
         topImage = new Button[numberOfTopStories];
         topImage[0] = (Button) findViewById(R.id.btn1);
         topImage[1] = (Button) findViewById(R.id.btn2);
         topImage[2] = (Button) findViewById(R.id.btn3);
         topImage[3] = (Button) findViewById(R.id.btn4);
         topImage[4] = (Button) findViewById(R.id.btn5);
-        for (int i = 0; i < numberOfTopStories; i++){
+        for (int i = 0; i < numberOfTopStories; i++)
+        {
             topImage[i].setOnClickListener(this);
         }
         titleText.bringToFront();
         zhihuDailyDB = ZhihuDailyDB.getInstance(mainActivity);
-        adapter= new StoryAdapter(MainActivity.this, R.layout.story_item, StoryList);
+        adapter = new StoryAdapter(MainActivity.this, R.layout.story_item, StoryList);
         listView.setAdapter(adapter);
         setListViewListener();
         initDateListener();
@@ -716,39 +731,43 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
 
     /**
      * 为顶部滚动的图片注册点击事件
-     * @param v     链接的下标
+     *
+     * @param v 链接的下标
      */
-        public void onClick(View v){
-            switch (v.getId()){
-                case R.id.btn1:
-                    initTopLinks(0);
-                    break;
-                case R.id.btn2:
-                    initTopLinks(1);
-                    break;
-                case R.id.btn3:
-                    initTopLinks(2);
-                    break;
-                case R.id.btn4:
-                    initTopLinks(3);
-                    break;
-                case R.id.btn5:
-                    initTopLinks(4);
-                    break;
-            }
+    public void onClick(View v) {
+        switch (v.getId())
+        {
+            case R.id.btn1:
+                initTopLinks(0);
+                break;
+            case R.id.btn2:
+                initTopLinks(1);
+                break;
+            case R.id.btn3:
+                initTopLinks(2);
+                break;
+            case R.id.btn4:
+                initTopLinks(3);
+                break;
+            case R.id.btn5:
+                initTopLinks(4);
+                break;
         }
+    }
 
     /**
      * 注册topStory的点击事件
-     * @param id    传入文章的ID
+     *
+     * @param id 传入文章的ID
      */
-    private void initTopLinks(int id){
-        Intent intent = new Intent(mainActivity,ArticleActivity.class);
+    private void initTopLinks(int id) {
+        Intent intent = new Intent(mainActivity, ArticleActivity.class);
         Bundle bundle = new Bundle();
-        bundle.putString("idOfArticle",String .valueOf(topStories[id].getId()));
-        intent.putExtra("id",bundle);
+        bundle.putString("idOfArticle", String.valueOf(topStories[id].getId()));
+        intent.putExtra("id", bundle);
         startActivity(intent);
     }
+
     /**
      * 初始化查看前一天新闻与后一天新闻的监听器
      */
