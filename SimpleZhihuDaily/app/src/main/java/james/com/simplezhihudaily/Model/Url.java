@@ -32,9 +32,9 @@ public class Url {
      */
     public static final String getThemeStory = "http://news-at.zhihu.com/api/4/theme/";
     /**
-     * 获取XSRF值的链接
+     * 知乎官网，可获取XSRF值的链接
      */
-    public static final String getXSRF = "https://www.zhihu.com";
+    public static final String zhihuOfficial = "https://www.zhihu.com";
     /**
      * 获取登录的验证码
      */

@@ -311,6 +311,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                 spinnerList.add("今日热闻");
                 spinnerList.add("登录/注册");
                 spinnerList.add("我的设置");
+                spinnerList.add("个人信息");
                 if (message.what == Symbol.RECEIVE_SUCCESS)
                 {
                     for (Theme theme : themes)
@@ -454,7 +455,6 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
             // TODO: 2016/9/5 有时间要去掉硬编码
             switch (itemString){
                 case "今日热闻":
-                    Toast.makeText(this,"已经在今日热闻了",Toast.LENGTH_SHORT).show();
                     break;
                 case "我的设置":
                     intent = new Intent(mainActivity,SettingActivity.class);
@@ -462,6 +462,10 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                     break;
                 case "登录/注册":
                     intent = new Intent(mainActivity,LoginActivity.class);
+                    startActivity(intent);
+                    break;
+                case "个人信息":
+                    intent = new Intent(mainActivity,ProfileActivity.class);
                     startActivity(intent);
                     break;
                 case "日常心理学":
@@ -668,6 +672,9 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
         slidingSwitcherView = (SlidingSwitcherView) findViewById(R.id.slidingLayout);
         editor = getSharedPreferences("themes", MODE_PRIVATE).edit();
         sharedPreferences = getSharedPreferences("themes", MODE_PRIVATE);
+        //SharedPreferences cookie = getSharedPreferences("Cookie",MODE_PRIVATE);
+        //Symbol.cookie = cookie.getString("Cookie","");
+
 
 
         topImage = new Button[numberOfTopStories];

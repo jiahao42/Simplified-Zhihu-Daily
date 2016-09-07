@@ -24,6 +24,7 @@
         <activity android:name=".View.SettingActivity"/>
         <activity android:name=".View.ThemeFrameActivity"/>
         <activity android:name=".View.CommentActivity"/>
+        <activity android:name=".View.ProfileActivity"/>
     </application>
 
 </manifest>

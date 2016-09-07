@@ -1,9 +1,9 @@
 package james.com.simplezhihudaily.View;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -30,12 +30,14 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import james.com.simplezhihudaily.Model.RegexForZhihu;
 import james.com.simplezhihudaily.Model.Symbol;
 import james.com.simplezhihudaily.Model.Url;
 import james.com.simplezhihudaily.R;
 import james.com.simplezhihudaily.Util.Util;
 
-import static james.com.simplezhihudaily.Model.Url.getXSRF;
+import static james.com.simplezhihudaily.Model.RegexForZhihu.getXSRF;
+import static james.com.simplezhihudaily.Model.Url.zhihuOfficial;
 import static james.com.simplezhihudaily.View.MainActivity.mainActivity;
 
 public class LoginActivity extends Activity implements View.OnClickListener {
@@ -43,11 +45,11 @@ public class LoginActivity extends Activity implements View.OnClickListener {
     private EditText passwordText;
     private EditText checksumBox;
     private Button login;
-    private ImageView checksum;
+    private Button captchaImage;
     private RequestQueue mQueue;
     public LoginActivity loginActivity;
     private String XSRF;
-    private String captcha;
+    private String captchaString;
     private Gson gson;
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor cookieEditor;
@@ -67,10 +69,10 @@ public class LoginActivity extends Activity implements View.OnClickListener {
     private void initWidget() {
         usernameText = (EditText) findViewById(R.id.username);
         passwordText = (EditText) findViewById(R.id.password);
-        checksumBox = (EditText) findViewById(R.id.input_checksum);
+        checksumBox = (EditText) findViewById(R.id.captcha_input);
         login = (Button) findViewById(R.id.login);
         login.setOnClickListener(this);
-        checksum = (ImageView) findViewById(R.id.checksum);
+        captchaImage = (Button) findViewById(R.id.captcha);
         loginActivity = this;
         sharedPreferences = getSharedPreferences("Cookie",MODE_PRIVATE);
         accountEditor = getSharedPreferences("Account",MODE_PRIVATE).edit();
@@ -89,7 +91,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
         switch (v.getId())
         {
             case R.id.login:
-                captcha = checksumBox.getText().toString();
+                captchaString = checksumBox.getText().toString();
                 username = usernameText.getText().toString();
                 password = passwordText.getText().toString();
                 accountEditor.putString("username",username);
@@ -97,6 +99,9 @@ public class LoginActivity extends Activity implements View.OnClickListener {
                 accountEditor.apply();
                 fetchXSRF();
                 break;
+            case R.id.captcha:
+                Log.d("Login","changing captcha");
+                getCheckSum();
 
         }
     }
@@ -114,7 +119,8 @@ public class LoginActivity extends Activity implements View.OnClickListener {
                 ImageRequest imageRequest = new ImageRequest(Url.getCheckSum, new Response.Listener<Bitmap>() {
                     @Override
                     public void onResponse(Bitmap response) {
-                        checksum.setImageBitmap(response);
+                        BitmapDrawable bdrawable = new BitmapDrawable(loginActivity.getResources(), response);
+                        captchaImage.setBackground(bdrawable);
                     }
                 }, 0, 0, ImageView.ScaleType.FIT_XY, Bitmap.Config.RGB_565, new Response.ErrorListener() {
                     @Override
@@ -144,10 +150,9 @@ public class LoginActivity extends Activity implements View.OnClickListener {
             public void run() {
                 try
                 {
-                    Document document = Jsoup.connect(getXSRF).get();
+                    Document document = Jsoup.connect(zhihuOfficial).get();
                     //Log.d("Login", document.toString());
-                    String pattern = "(name=\"_xsrf\" value=\")(.*)(\">)";
-                    Pattern getXSRF = Pattern.compile(pattern);
+                    Pattern getXSRF = Pattern.compile(RegexForZhihu.getXSRF);
                     Matcher matcher = getXSRF.matcher(document.toString());
                     //Log.d("Login",data);
                     XSRF = null;
@@ -191,7 +196,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
                 {
                     Connection.Response response = Jsoup.connect(Url.loginByMail).
                             data("_xsrf", XSRF,
-                                    "captcha", captcha,
+                                    "captcha", captchaString,
                                     "email", username,
                                     "password",password,
                                     "remember_me","true")
@@ -204,6 +209,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
                     {
                         Document document = response.parse();
                         Map<String, String> map = response.cookies();
+                        Symbol.cookie = map;
                         cookieEditor.putString("cookie", map.toString());
                         cookieEditor.apply();
                         Log.d("Login_cookies_as_Map", map.toString());

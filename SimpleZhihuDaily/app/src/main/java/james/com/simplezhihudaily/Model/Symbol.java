@@ -1,5 +1,7 @@
 package james.com.simplezhihudaily.Model;
 
+import java.util.Map;
+
 public class Symbol{
     /**
      * 网络请求成功
@@ -34,6 +36,7 @@ public class Symbol{
      */
     public static final int LongComment = 0;
     public static final int ShortComment = 1;
+    public static Map<String,String> cookie;
 }
 /*
 Enum类在这里似乎是画蛇添足

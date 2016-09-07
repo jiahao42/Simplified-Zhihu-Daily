@@ -28,7 +28,7 @@
         android:hint="请输入密码"/>
 
     <EditText
-        android:id="@+id/input_checksum"
+        android:id="@+id/captcha_input"
         android:layout_width="150dp"
         android:layout_height="50dp"
         android:gravity="left"
@@ -38,22 +38,23 @@
         android:hint="请输入验证码"
         />
 
-    <ImageView
-        android:id="@+id/checksum"
+    <Button
+        android:id="@+id/captcha"
         android:layout_width="140dp"
         android:layout_height="60dp"
         android:layout_marginLeft="40dp"
-        android:src="@drawable/error"
+        android:background="@drawable/error_captcha"
         android:layout_below="@id/password"
+        android:textSize="19sp"
         android:layout_marginRight="20dp"
-        android:layout_toRightOf="@id/input_checksum"
+        android:layout_toRightOf="@id/captcha_input"
         android:layout_centerHorizontal="true"/>
 
     <Button
         android:id="@+id/login"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/checksum"
+        android:layout_below="@+id/captcha"
         android:layout_centerHorizontal="true"
         android:text="Login"/>
 </RelativeLayout>
