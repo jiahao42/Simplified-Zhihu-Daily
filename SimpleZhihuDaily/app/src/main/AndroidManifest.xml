@@ -25,6 +25,7 @@
         <activity android:name="com.james.simplezhihudaily.View.ThemeFrameActivity"/>
         <activity android:name="com.james.simplezhihudaily.View.CommentActivity"/>
         <activity android:name="com.james.simplezhihudaily.View.ProfileActivity"/>
+        <service android:name=".Service.UpdateService"/>
     </application>
 
 </manifest>

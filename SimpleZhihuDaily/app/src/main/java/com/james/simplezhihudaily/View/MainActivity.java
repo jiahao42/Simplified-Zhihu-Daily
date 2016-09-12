@@ -61,14 +61,13 @@ import static com.james.simplezhihudaily.R.drawable.error;
  * 2.下滑时要隐藏标题栏
  * 3.要写点赞，评论菜单，且单击后该菜单会出现或消失
  * 4.分栏目，点击显示下拉列表，可以获取每个栏目的信息   **DONE**
- * 5.不显眼的注册登录功能，连接后台
- * 6.写设置界面，比如可以选择3G情况下不自动加载图片等
+ * 5.不显眼的注册登录功能，连接后台        **DONE**
+ * 6.写设置界面，比如可以选择3G情况下不自动加载图片等      **DONE**
  * 7.要做推送消息功能（总之要实践Service和Broadcast!!!)
  * 8.分享功能
  * 9.持久化Cookie
  */
 
-// TODO: 2016/9/3 还没有给TopStory添加链接 无法通过它进入文章
 
 
 public class MainActivity extends Activity implements AdapterView.OnItemSelectedListener, View.OnClickListener {

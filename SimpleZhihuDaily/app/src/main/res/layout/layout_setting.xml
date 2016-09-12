@@ -58,26 +58,6 @@
                 android:id="@+id/announcement_or_not"
                 />
         </TableRow>
-        <TableRow
-            android:id="@+id/personInfo"
-            android:background="@drawable/login_box">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="个人信息"
-                android:drawableLeft="@drawable/icon_personal"
-                android:textColor="#000"
-                android:gravity="center"
-                android:layout_marginLeft="40dp"
-                android:textSize="@dimen/setting_text"
-                />
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="right"
-                android:background="@drawable/icon_arrow"
-                />
-        </TableRow>
     </TableLayout>
     <TextView
         android:id="@+id/Other_settings"
