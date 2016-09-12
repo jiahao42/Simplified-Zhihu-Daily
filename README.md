@@ -21,7 +21,7 @@
 
 ## 意见反馈
 
-* 因为前期设计的坑，如果要浏览历史文章，请等待当前页面加载完成后再点击前一天的内容，否则会导致程序崩溃。
+* 因为前期设计的坑，如果要浏览历史文章，请等待当前页面加载完成后再点击前一天的内容，否则会导致程序崩溃。如果不想等待，请打开无图模式，可大大减少加载时间。
 * 意见及建议请发送至caterpillarous@gmail.com
 
 ## Function List
@@ -37,5 +37,5 @@
 * Share article(constructing)
 
 ## Notice
-* For some design fault, if you want to read the previous articles,please wait until the current page completely loaded. Otherwise, the app is likely to cursh.
+* For some design fault, if you want to read the previous articles,please wait until the current page completely loaded. Otherwise, the app is likely to cursh. If you don't want to wait, please choose the No Picture Pattern, it can reduce the loading time a lot.
 * If you have any advice or complaint, please send email to caterpillarous@gmail.com
