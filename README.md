@@ -20,5 +20,22 @@
 
 
 ## 意见反馈
+
 * 因为前期设计的坑，如果要浏览历史文章，请等待当前页面加载完成后再点击前一天的内容，否则会导致程序崩溃。
 * 意见及建议请发送至caterpillarous@gmail.com
+
+## Function List
+
+* Read articles(including previous articles)
+* Join the discussion on Zhihu.com
+* Read articles by theme
+* Read the comments and likes
+* Log on Zhihu.com
+* Read the profile on Zhihu.com
+* No Picture Pattern
+* Notification when article updates(constructing)
+* Share article(constructing)
+
+## Notice
+* For some design fault, if you want to read the previous articles,please wait until the current page completely loaded. Otherwise, the app is likely to cursh.
+* If you have any advice or complaint, please send email to caterpillarous@gmail.com
