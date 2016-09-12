@@ -7,7 +7,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="james.com.simplezhihudaily.View.MainActivity">
+    tools:context="com.james.simplezhihudaily.View.MainActivity">
     <RelativeLayout
         android:id="@+id/top_bar"
         android:layout_width="wrap_content"
@@ -52,7 +52,7 @@
             android:layout_marginTop="10dp"
             android:layout_marginRight="10dp"/>
     </RelativeLayout>
-    <james.com.simplezhihudaily.View.SlidingSwitcherView
+    <com.james.simplezhihudaily.View.SlidingSwitcherView
         android:id="@+id/slidingLayout"
         android:layout_width="fill_parent"
         android:layout_height="240dp" >
@@ -119,8 +119,8 @@
             android:layout_margin="15dip"
             android:orientation="horizontal" >
         </LinearLayout>
-    </james.com.simplezhihudaily.View.SlidingSwitcherView>
-    <james.com.simplezhihudaily.View.RefreshableView
+    </com.james.simplezhihudaily.View.SlidingSwitcherView>
+    <com.james.simplezhihudaily.View.RefreshableView
         android:id="@+id/refreshable_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
@@ -130,7 +130,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" >
         </ListView>
-    </james.com.simplezhihudaily.View.RefreshableView>
+    </com.james.simplezhihudaily.View.RefreshableView>
     <TextView
         android:id="@+id/bottom"
         android:layout_width="match_parent"
