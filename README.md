@@ -16,7 +16,7 @@
 * 查看个人基本信息
 * 无图模式
 * 推送功能(施工中)
-* 分享功能(施工中)
+* 分享功能
 
 
 ## 意见反馈
@@ -34,7 +34,7 @@
 * Read the profile on Zhihu.com
 * No Picture Pattern
 * Notification when article updates(constructing)
-* Share article(constructing)
+* Share article
 
 ## Notice
 * For some design fault, if you want to read the previous articles,please wait until the current page completely loaded. Otherwise, the app is likely to cursh. If you don't want to wait, please choose the No Picture Pattern, it can reduce the loading time a lot.
