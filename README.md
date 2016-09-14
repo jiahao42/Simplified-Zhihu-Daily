@@ -39,3 +39,11 @@
 ## Notice
 * For some design fault, if you want to read the previous articles,please wait until the current page completely loaded. Otherwise, the app is likely to cursh. If you don't want to wait, please choose the No Picture Pattern, it can reduce the loading time a lot.
 * If you have any advice or complaint, please send email to caterpillarous@gmail.com
+
+
+# Some screenshots:
+
+![](https://github.com/Jameeeees/Simplified-Zhihu-Daily/tree/master/screenshots/screenshot1.png)
+![](https://github.com/Jameeeees/Simplified-Zhihu-Daily/tree/master/screenshots/screenshot2.png)
+![](https://github.com/Jameeeees/Simplified-Zhihu-Daily/tree/master/screenshots/screenshot3.png)
+![](https://github.com/Jameeeees/Simplified-Zhihu-Daily/tree/master/screenshots/screenshot4.png)

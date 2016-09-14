@@ -114,7 +114,9 @@ public class CommentActivity extends Activity {
                     shortCommentAdapter.notifyDataSetChanged();
                 } else
                 {
-                    JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Url.getComment + idOfArticle + "/long-comments", null, new Response.Listener<JSONObject>() {
+                    JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                            (Url.getComment + idOfArticle + "/long-comments", null,
+                                    new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
                             try
