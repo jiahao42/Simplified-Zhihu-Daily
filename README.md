@@ -43,7 +43,7 @@
 
 # Some screenshots:
 
-![](https://github.com/Jameeeees/Simplified-Zhihu-Daily/tree/master/screenshots/screenshot1.png)
-![](https://github.com/Jameeeees/Simplified-Zhihu-Daily/tree/master/screenshots/screenshot2.png)
-![](https://github.com/Jameeeees/Simplified-Zhihu-Daily/tree/master/screenshots/screenshot3.png)
-![](https://github.com/Jameeeees/Simplified-Zhihu-Daily/tree/master/screenshots/screenshot4.png)
+![](https://github.com/Jameeeees/Simplified-Zhihu-Daily/blob/master/screenshots/screenshot1.png)
+![](https://github.com/Jameeeees/Simplified-Zhihu-Daily/blob/master/screenshots/screenshot2.png)
+![](https://github.com/Jameeeees/Simplified-Zhihu-Daily/blob/master/screenshots/screenshot3.png)
+![](https://github.com/Jameeeees/Simplified-Zhihu-Daily/blob/master/screenshots/screenshot4.png)
