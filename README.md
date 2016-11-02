@@ -1,6 +1,10 @@
 # Simplified Zhihu Daily
 
-###   一个~~简化版~~的知乎日报，通过知乎日报API[[参考]](https://github.com/izzyleung/ZhihuDailyPurify/wiki/%E7%9F%A5%E4%B9%8E%E6%97%A5%E6%8A%A5-API-%E5%88%86%E6%9E%90)得到基本的数据，并且相比知乎日报Android版增加了使用知乎账号登录功能。但是因为知乎账号登录后要做的功能用到的技术基本就是爬虫，故没有再继续深入下去做。
+#### update on 2016/11/02 [应用已上架，欢迎下载吐槽](http://www.mumayi.com/android-1130167.html?1478081572)
+
+---
+
+###   一个~~简化版~~的知乎日报，通过知乎日报API[[参考]](https://github.com/izzyleung/ZhihuDailyPurify/wiki/%E7%9F%A5%E4%B9%8E%E6%97%A5%E6%8A%A5-API-%E5%88%86%E6%9E%90)得到基本的数据，并且相比知乎日报Android版增加了使用知乎账号登录功能~~,假如一直写下去好像可以把知乎日报和知乎客户端整合在一个应用里~~。但是因为知乎账号登录后要做的功能用到的技术基本就是爬虫，故没有再继续深入下去做。
 
 
 ## This project refers to [Here](https://github.com/izzyleung/ZhihuDailyPurify/wiki/%E7%9F%A5%E4%B9%8E%E6%97%A5%E6%8A%A5-API-%E5%88%86%E6%9E%90)
