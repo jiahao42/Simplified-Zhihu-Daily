@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.database.CursorIndexOutOfBoundsException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -336,7 +337,14 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                 } else
                 {//没请求到数据则直接到本地取
                     List<Theme> list = new ArrayList<>();
-                    list.addAll(zhihuDailyDB.getTheme());
+                    try
+                    {
+                        list.addAll(zhihuDailyDB.getTheme());
+                    } catch (CursorIndexOutOfBoundsException e) {
+                        Toast.makeText(MainActivity.mainActivity, "网络问题，请稍后再试", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
                     for (int i = 0; i < list.size(); i++)
                     {
                         spinnerList.add(list.get(i).getName());
@@ -355,7 +363,6 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                         try
                         {
                             themes = gson.fromJson(response.getString("others"), Theme[].class);
-                            int count = 0;
                             if (zhihuDailyDB.howManyThemeInDB() != 0)
                             {
                                 for (int i = 0; i < themes.length; i++)

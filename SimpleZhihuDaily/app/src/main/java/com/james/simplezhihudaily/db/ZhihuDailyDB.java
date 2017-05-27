@@ -3,6 +3,7 @@ package com.james.simplezhihudaily.db;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
@@ -340,7 +341,7 @@ public class ZhihuDailyDB {
      * get themes from db
      * @return  themes
      */
-    public List<Theme> getTheme(){
+    public List<Theme> getTheme() throws CursorIndexOutOfBoundsException{
         List<Theme> list = new ArrayList<>();
         Cursor cursor = db.query(ZhihuDailyDBhelper.TABLE_NAME_THEME,null,null,null,null,null,null);
         cursor.moveToFirst();

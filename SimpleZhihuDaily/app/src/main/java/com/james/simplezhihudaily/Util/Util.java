@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
@@ -99,6 +100,7 @@ public class Util {
             if (info != null && info.isConnected())
             {
                 // 当前网络是连接的
+
                 if (info.getState() == NetworkInfo.State.CONNECTED)
                 {
                     // 当前所连接的网络可用
