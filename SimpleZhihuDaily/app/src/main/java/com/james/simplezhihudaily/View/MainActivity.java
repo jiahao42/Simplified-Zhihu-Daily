@@ -343,7 +343,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                         list.addAll(zhihuDailyDB.getTheme());
                     } catch (CursorIndexOutOfBoundsException e)
                     {
-                        Toast.makeText(MainActivity.mainActivity, "网络问题，请稍后再试", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.mainActivity, "网络错误，请稍后再试", Toast.LENGTH_SHORT).show();
                         return;
                     }
 
