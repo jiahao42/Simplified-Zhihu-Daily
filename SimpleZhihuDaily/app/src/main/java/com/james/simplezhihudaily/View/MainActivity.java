@@ -34,6 +34,17 @@ import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
+import com.james.simplezhihudaily.Adapter.StoryAdapter;
+import com.james.simplezhihudaily.Model.DateControl;
+import com.james.simplezhihudaily.Model.DeviceInfo;
+import com.james.simplezhihudaily.Model.Story;
+import com.james.simplezhihudaily.Model.Theme;
+import com.james.simplezhihudaily.Model.TopStory;
+import com.james.simplezhihudaily.R;
+import com.james.simplezhihudaily.Util.Symbol;
+import com.james.simplezhihudaily.Util.Url;
+import com.james.simplezhihudaily.Util.Util;
+import com.james.simplezhihudaily.db.ZhihuDailyDB;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,18 +52,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import com.james.simplezhihudaily.Model.DateControl;
-import com.james.simplezhihudaily.Model.DeviceInfo;
-import com.james.simplezhihudaily.Model.Story;
-import com.james.simplezhihudaily.Adapter.StoryAdapter;
-import com.james.simplezhihudaily.Util.Symbol;
-import com.james.simplezhihudaily.Model.Theme;
-import com.james.simplezhihudaily.Model.TopStory;
-import com.james.simplezhihudaily.Util.Url;
-import com.james.simplezhihudaily.R;
-import com.james.simplezhihudaily.Util.Util;
-import com.james.simplezhihudaily.db.ZhihuDailyDB;
 
 import static com.james.simplezhihudaily.R.drawable.error;
 
@@ -68,7 +67,6 @@ import static com.james.simplezhihudaily.R.drawable.error;
  * 8.分享功能
  * 9.持久化Cookie
  */
-
 
 
 public class MainActivity extends Activity implements AdapterView.OnItemSelectedListener, View.OnClickListener {
@@ -143,9 +141,10 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                 /**
                  * 根据Url去请求Story的配图
                  */
-            if (!noPicPattern){
-                getStoryPics();
-            }
+                if (!noPicPattern)
+                {
+                    getStoryPics();
+                }
                 /**
                  * 下面得到topStory的Urls
                  */
@@ -157,9 +156,10 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                 /**
                  * 根据Url去请求TopStory的配图
                  */
-            if (!noPicPattern){
-                getTopStoryPics();
-            }
+                if (!noPicPattern)
+                {
+                    getTopStoryPics();
+                }
             }
         }
     };
@@ -331,7 +331,8 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                     {
                         themePics[i] = themes[i].getUrl();
                     }
-                    if (!noPicPattern){
+                    if (!noPicPattern)
+                    {
                         getThemePics();
                     }
                 } else
@@ -340,7 +341,8 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                     try
                     {
                         list.addAll(zhihuDailyDB.getTheme());
-                    } catch (CursorIndexOutOfBoundsException e) {
+                    } catch (CursorIndexOutOfBoundsException e)
+                    {
                         Toast.makeText(MainActivity.mainActivity, "网络问题，请稍后再试", Toast.LENGTH_SHORT).show();
                         return;
                     }
@@ -736,7 +738,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                     initSetting();
                     getTopStoryFlag = true;
                     getStoryUrl("latest");
-                    Log.d("noPicPattern",String.valueOf(noPicPattern));
+                    Log.d("noPicPattern", String.valueOf(noPicPattern));
                     dateControl.backToToday();//刷新后在点左箭头应该重新回到昨天的内容
                     Thread.sleep(3000);
                 } catch (InterruptedException e)
@@ -752,15 +754,17 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
     /**
      * 响应一些初始设置 如无图模式
      */
-    private void initSetting(){
-        setting = getSharedPreferences("settings",MODE_PRIVATE);
-        settingEditor = getSharedPreferences("settings",MODE_PRIVATE).edit();
-        if (!setting.contains("pictures?")){
-            settingEditor.putBoolean("pictures?",true);
+    private void initSetting() {
+        setting = getSharedPreferences("settings", MODE_PRIVATE);
+        settingEditor = getSharedPreferences("settings", MODE_PRIVATE).edit();
+        if (setting.contains("no_picture_mode"))
+        {
+            noPicPattern = setting.getBoolean("no_picture_mode", false);
+        } else
+        {
+            settingEditor.putBoolean("no_picture_mode", false);
             settingEditor.apply();
             noPicPattern = false;
-        }else {
-            noPicPattern = setting.getBoolean("pictures?",false);
         }
     }
 
@@ -838,7 +842,8 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                     从数据库中取出来的对象 只有配图的url 而没有配图的图片 所以得去服务器请求
                      */
                     adapter.notifyDataSetChanged();//先出现文字 再开始请求图片
-                    if (!noPicPattern){
+                    if (!noPicPattern)
+                    {
                         getPicFromNet();
                     }
                 } else
@@ -881,7 +886,8 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                     从数据库中取出来的对象 只有配图的url 而没有配图的图片 所以得去服务器请求
                      */
                         adapter.notifyDataSetChanged();//先出现文字 再开始请求图片
-                        if (!noPicPattern){
+                        if (!noPicPattern)
+                        {
                             getPicFromNet();
                         }
                     } else

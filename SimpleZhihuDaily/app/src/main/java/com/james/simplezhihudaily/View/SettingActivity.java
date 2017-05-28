@@ -23,15 +23,15 @@ public class SettingActivity extends Activity {
         editor = getSharedPreferences("settings",MODE_PRIVATE).edit();
         sharedPreferences = getSharedPreferences("settings",MODE_PRIVATE);
         /* 无图模式 默认不打开无图模式*/
-        noPics.setChecked(sharedPreferences.getBoolean("pictures?",false));
+        noPics.setChecked(sharedPreferences.getBoolean("no_picture_mode",false));
         noPics.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 if (isChecked){
-                    editor.putBoolean("pictures?",true);
+                    editor.putBoolean("no_picture_mode",true);
                     editor.apply();
                 }else {
-                    editor.putBoolean("pictures?",false);
+                    editor.putBoolean("no_picture_mode",false);
                     editor.apply();
                 }
             }
