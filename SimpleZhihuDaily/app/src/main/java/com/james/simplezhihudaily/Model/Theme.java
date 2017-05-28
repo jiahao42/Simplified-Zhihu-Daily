@@ -30,7 +30,9 @@ public class Theme {
 
     private Bitmap bitmap;
 
-    public Theme(){}
+    public Theme() {
+    }
+
     public Theme(String url, String description, int id, String name) {
         this.url = url;
         this.description = description;
@@ -68,5 +70,15 @@ public class Theme {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return "Theme{" +
+                "url='" + url + '\'' +
+                ", description='" + description + '\'' +
+                ", id=" + id +
+                ", name='" + name + '\'' +
+                '}';
     }
 }

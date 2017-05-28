@@ -298,7 +298,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.d("MainActivity", "server_error");
+                        Log.d("Get Story Url", "server_error");
                     }
                 });
                 jsonObjectRequest.setShouldCache(true);
@@ -342,9 +342,10 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                     {
                         list.addAll(zhihuDailyDB.getTheme());
                     } catch (CursorIndexOutOfBoundsException e)
-                    {
+                    { //如果本地也没取到
+                        e.printStackTrace();
+                        getThemes();
                         Toast.makeText(MainActivity.mainActivity, "网络错误，请稍后再试", Toast.LENGTH_SHORT).show();
-                        return;
                     }
 
                     for (int i = 0; i < list.size(); i++)
@@ -358,6 +359,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
         new Thread(new Runnable() {
             @Override
             public void run() {
+                Log.d("Get Themes", "new Thread start to run...");
                 mQueue = Volley.newRequestQueue(mainActivity);
                 JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Url.getThemes, null, new Response.Listener<JSONObject>() {
                     @Override
@@ -372,6 +374,10 @@ public class MainActivity extends Activity implements AdapterView.OnItemSelected
                                     zhihuDailyDB.saveThemes(themes[i]);
                                 }
                             }
+                            for (Theme t : themes) {
+                                Log.d("Themes from net", t.toString());
+                            }
+
                             Message message = new Message();
                             message.what = Symbol.RECEIVE_SUCCESS;
                             getThemeHandler.sendMessage(message);
