@@ -22,8 +22,8 @@ public class SettingActivity extends Activity {
         noPics = (Switch)findViewById(R.id.no_pic_pattern);
         editor = getSharedPreferences("settings",MODE_PRIVATE).edit();
         sharedPreferences = getSharedPreferences("settings",MODE_PRIVATE);
-        /* 无图模式 */
-        noPics.setChecked(sharedPreferences.getBoolean("pictures?",true));
+        /* 无图模式 默认不打开无图模式*/
+        noPics.setChecked(sharedPreferences.getBoolean("pictures?",false));
         noPics.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
